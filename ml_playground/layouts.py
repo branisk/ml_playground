@@ -2,7 +2,9 @@ import plotly.express as px
 from dash import html, dcc
 
 base_layout = html.Div(className="container", children=[
-    html.P(id='none'),
+    html.P(id='none1'),
+    html.P(id='none2'),
+    html.P(id='none3'),
     html.Div(className="Title center", children=[
         html.H1("Machine Learning from Scratch", className="title-text")
     ]),

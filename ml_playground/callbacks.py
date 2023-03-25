@@ -12,11 +12,9 @@ global fig, data, model
     Output('graph', 'figure'),
     Input('dataset_dropdown', 'value'),
     Input('button', 'n_clicks'),
-    Input('optimizer_dropdown', 'value'),
-    Input('regularization_dropdown', 'value'),
     prevent_initial_call=True
 )
-def update_graph(value, button, optimizer, regularization_type):
+def update_graph(value, button):
     global fig, data, model
     triggered_id = dash.callback_context.triggered_id
     print(triggered_id)
@@ -29,14 +27,6 @@ def update_graph(value, button, optimizer, regularization_type):
             elif value == "Simulation":
                 fig, data = gather_simulation()
                 return fig
-
-        case 'optimizer_dropdown':
-            model.optimizer = optimizer
-            return fig
-
-        case 'regularization_dropdown':
-            model.regularization_type = regularization_type
-            return fig
 
         case 'button':
             X = data[:, :2]
@@ -77,9 +67,38 @@ def update_algorithms(value):
     Input('algorithm_dropdown', 'value'),
     prevent_initial_call=True
 )
-def update_optimizers(value):
+def update_options(value):
     if not value:
         return [''], [''], None, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}
     if value == "Support Vector Classifier":
         return ['Sub-Gradient Descent', "Newton's Method"], ["Lasso (L1)", 'Ridge (L2)'], 0.01, {'display': 'block'}, \
             {'display': 'block'}, {'display': 'block'}
+
+
+@app.callback(
+    Output('none1', 'style'),
+    Input('optimizer_dropdown', 'value'),
+    prevent_initial_call=True
+)
+def update_optimizer(value):
+    global model
+    model.optimizer = value
+
+@app.callback(
+    Output('none2', 'style'),
+    Input('regularization_dropdown', 'value'),
+    prevent_initial_call=True
+)
+def update_regularization_type(value):
+    global model
+    model.regularization_type = value
+
+
+@app.callback(
+    Output('none3', 'style'),
+    Input('regularization_input', 'value'),
+    prevent_initial_call=True
+)
+def update_regularization_term(value):
+    global model
+    model.C = value
