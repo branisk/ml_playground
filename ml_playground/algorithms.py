@@ -5,14 +5,14 @@ import plotly.express as px
 class SupportVectorClassifier:
     def __init__(
             self,
-            linearity='linear',
+            kernel='linear',
             learning_rate=0.01,
             regularization_term=0.1,
             max_iterations=1,
             regularization_type="L2",
             optimizer="Sub-Gradient Descent"
     ):
-        self.linearity = linearity
+        self.kernel = kernel
         self.eta = learning_rate
         self.C = regularization_term
         self.max_iter = max_iterations
@@ -24,7 +24,6 @@ class SupportVectorClassifier:
         self.optimizer = optimizer
 
     def fit(self, X, Y):
-        # Train our SVM using stochastic gradient descent
         for i in range(self.max_iter):
             if self.optimizer == "Sub-Gradient Descent":
                 self._sgd_step(X, Y)
