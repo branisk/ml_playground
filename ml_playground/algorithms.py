@@ -5,6 +5,7 @@ import plotly.express as px
 class SupportVectorClassifier:
     def __init__(
             self,
+            n_features=2,
             kernel='linear',
             learning_rate=0.01,
             regularization_term=0.1,
@@ -16,11 +17,9 @@ class SupportVectorClassifier:
         self.eta = learning_rate
         self.C = regularization_term
         self.max_iter = max_iterations
-        self.W = np.zeros(2)
-        self.b = 0 # "bias" or "intercept" term
-        self.w_grad = np.zeros_like(self.W)
-        self.b_grad = 0
-        self.regularization_type = regularization_type  # L2 is Ridge, L1 is Lasso
+        self.W, self.w_grad = np.zeros(n_features), np.zeros_like(n_features)  # Weight term
+        self.b, self.b_grad = 0, 0  # "bias" or "intercept" term
+        self.regularization_type = regularization_type  # L2=Ridge, L1=Lasso
         self.optimizer = optimizer
 
     def fit(self, X, Y):
@@ -56,7 +55,7 @@ class SupportVectorClassifier:
             print("Using Ridge Regression")
             self.w_grad = self.W + (self.C * self.w_grad)
             self.b_grad = self.C * self.b_grad
-        elif self.regularization_type == "L1": # Many of these weights turn to 0
+        elif self.regularization_type == "L1":  # Many of these weights turn to 0
             print("Using Lasso Regularization")
             self.w_grad = self.W + self.C * np.sign(self.w_grad)
             self.b_grad = self.C * np.sign(self.b_grad)
@@ -64,7 +63,7 @@ class SupportVectorClassifier:
         self.W -= self.eta * self.w_grad
         self.b -= self.eta * self.b_grad
 
-        loss = self.hinge_loss(X,Y)
+        loss = self.hinge_loss(X, Y)
         print(f"SGD step: {loss}")
 
     def _newton_step(self, X, Y):
