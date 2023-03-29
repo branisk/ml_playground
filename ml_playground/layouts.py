@@ -30,7 +30,7 @@ base_layout = html.Div(className="container", children=[
         html.Div(children=[
             html.H5("Loss Function:"),
             html.Pre(html.Code(
-                "def hinge_loss(self, X, Y):\n\tdistance_sum = 0\n\tfor x_i, y_i in zip(X, Y):\n\t\tdistance_sum += max(0, 1 - y_i * (np.dot(self.weight, x_i) + self.intercept))\n\tregularization_term = 0.5 * np.dot(np.transpose(self.weight), self.weight)\n\terror_term = self.regularization * distance_sum\n\tloss = regularization_term + error_term\n\treturn loss",
+                "def hinge_loss(self, X, Y):\n   distance_sum = 0\n   for x_i, y_i in zip(X, Y):\n      dist+=max(0, 1 - y_i * (dot(self.weight, x_i) + self.intercept))\n   reg = 0.5 * dot(self.weight.T, self.weight)\n   error_term = reg * dist\n   loss = reg + error\n   return loss",
                 style={'font-size': '10px'},
             ))],
             className="code-holder"

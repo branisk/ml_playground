@@ -7,7 +7,6 @@ from datasets import *
 
 global fig, data, model
 
-
 @app.callback(
     Output('graph', 'figure'),
     Input('dataset_dropdown', 'value'),
@@ -17,7 +16,6 @@ global fig, data, model
 def update_graph(value, button):
     global fig, data, model
     triggered_id = dash.callback_context.triggered_id
-    print(triggered_id)
 
     match triggered_id:
         case 'dataset_dropdown':
@@ -33,7 +31,8 @@ def update_graph(value, button):
             Y = data[:, 2:3]
             hyperplane = model.fit(X, Y)
 
-            return go.FigureWidget(data=fig.data + hyperplane.data, layout=fig.layout)
+            fw = go.FigureWidget(data=fig.data + hyperplane.data, layout=fig.layout)
+            return fw
 
 
 @app.callback(
@@ -44,13 +43,10 @@ def update_graph(value, button):
     prevent_initial_call=True
 )
 def update_algorithms(value):
-    global model
-
     if value == "None":
         return [''], {''}, {''}
     if value == "Classification":
-        model = SupportVectorClassifier()
-        return ['Support Vector Classifier'], {'display': 'block'}, {'display': 'inline-block'}
+        return ['Support Vector Classifier', 'Logistic Regression'], {'display': 'block'}, {'display': 'inline-block'}
     elif value == "Regression":
         return ['Linear Regression'], {'display': 'block'}, {'display': 'inline-block'}
     elif value == "Clustering":
@@ -68,10 +64,18 @@ def update_algorithms(value):
     prevent_initial_call=True
 )
 def update_options(value):
+    global model
+
     if not value:
         return [''], [''], None, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}
-    if value == "Support Vector Classifier":
-        return ['Sub-Gradient Descent', "Newton's Method"], ["Lasso (L1)", 'Ridge (L2)'], 0.01, {'display': 'block'}, \
+    elif value == "Support Vector Classifier":
+        model = SupportVectorClassifier()
+        return ['Sub-Gradient Descent', "Newton's Method"],\
+            ["Lasso (L1)", 'Ridge (L2)'], 0.01, {'display': 'block'}, \
+            {'display': 'block'}, {'display': 'block'}
+    elif value == "Logistic Regression":
+        model = LogisticRegression()
+        return ['', ""], [""], 0.01, {'display': 'block'}, \
             {'display': 'block'}, {'display': 'block'}
 
 
@@ -82,7 +86,9 @@ def update_options(value):
 )
 def update_optimizer(value):
     global model
-    model.optimizer = value
+
+    if value:
+        model.optimizer = value
 
 @app.callback(
     Output('none2', 'style'),
@@ -91,7 +97,9 @@ def update_optimizer(value):
 )
 def update_regularization_type(value):
     global model
-    model.regularization_type = value
+
+    if value:
+        model.regularization_type = value
 
 
 @app.callback(
@@ -101,4 +109,6 @@ def update_regularization_type(value):
 )
 def update_regularization_term(value):
     global model
-    model.C = value
+
+    if value:
+        model.C = float(value)

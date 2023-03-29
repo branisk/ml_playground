@@ -33,8 +33,8 @@ def gather_iris():
     data.dropna(how="all", inplace=True) # remove any empty lines
     data.label.replace({0: 1, 1: 2, 2: 3}, inplace=True)
 
-    data = data[data['label'] != 3]
-    remap = {1: 1, 2: -1}
+    data = data[data['label'] != 2]
+    remap = {1: 1, 3: 0}
 
     data = data.replace({'label': remap})
     data = data.drop(columns=['petal_len', 'petal_wid'])
