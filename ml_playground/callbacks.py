@@ -5,7 +5,7 @@ from algorithms import *
 from app import app
 from datasets import *
 
-global fig, data, model
+global fig, data, model, ind
 
 @app.callback(
     Output('graph', 'figure'),
@@ -14,7 +14,7 @@ global fig, data, model
     prevent_initial_call=True
 )
 def update_graph(value, button):
-    global fig, data, model
+    global fig, data, model, ind
     triggered_id = dash.callback_context.triggered_id
 
     match triggered_id:

@@ -27,7 +27,7 @@ class LogisticRegression:
         # Plot the decision boundary
         fig = px.scatter()
         x_vals = np.linspace(np.min(X[:, 0]), np.max(X[:, 0]), 100)
-        y_vals = -(self.W[0] * x_vals + self.W[2]) / self.W[1]
+        y_vals = -(self.W[0] * x_vals + self.W[1]) / self.W[1]
         fig.add_trace(px.line(x=x_vals, y=y_vals).data[0])
 
         print("Logistic Regression is fit")
@@ -37,8 +37,8 @@ class LogisticRegression:
 
     def _sgd_step(self, X, Y):
         predictions = self.predict(X)
-        difference = predictions - Y.T
-        grad = np.dot(X.T, difference.T)
+        difference = predictions.T - Y
+        grad = np.dot(X.T, difference)
         grad = np.array([grad[0][0], grad[1][0]])
 
         self.W -= self.eta * grad
@@ -69,10 +69,9 @@ class SupportVectorClassifier:
         self.C = regularization_term
         self.max_iter = max_iterations
         self.W = np.zeros(n_features)  # Weight term
-        self.b, self.b_grad = 0, 0  # "bias" or "intercept" term
+        self.b = 0  # "bias" or "intercept" term
         self.regularization_type = regularization_type  # L2=Ridge, L1=Lasso
         self.optimizer = optimizer
-        self.w_grad = np.zeros_like(self.W)
 
     def fit(self, X, Y):
         for i in range(self.max_iter):
