@@ -1,5 +1,5 @@
 import plotly.express as px
-from dash import html, dcc
+from dash import html, dcc, dash_table
 
 base_layout = html.Div(className="container", children=[
     html.P(id='none1'),
@@ -38,7 +38,16 @@ base_layout = html.Div(className="container", children=[
         ),
     ]),
     html.Div(className="Data", children=[
-        html.H4("Data", className="center")
+        html.H4("Data", className="center"),
+        dash_table.DataTable(
+            id="table",
+            columns=(
+                [{'id': 'index', 'name': '', 'editable': False},
+                 {'id': 'X', 'name': 'X', 'editable': False},
+                 {'id': 'Y', 'name': 'Y', 'editable': False}]
+            ),
+            style_table={'height': '200px', 'overflowY': 'auto'}
+        )
     ]),
     html.Div(className="Results", children=[
         html.H4("Results", className="center")

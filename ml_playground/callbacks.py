@@ -5,7 +5,9 @@ from algorithms import *
 from app import app
 from datasets import *
 
-global fig, data, model, ind
+global fig, data, model
+data = None
+
 
 @app.callback(
     Output('graph', 'figure'),
@@ -14,7 +16,7 @@ global fig, data, model, ind
     prevent_initial_call=True
 )
 def update_graph(value, button):
-    global fig, data, model, ind
+    global fig, data, model
     triggered_id = dash.callback_context.triggered_id
 
     match triggered_id:
@@ -44,6 +46,23 @@ def update_graph(value, button):
 
 
 @app.callback(
+    Output('table', 'data'),
+    Input('dataset_dropdown', 'value'),
+    prevent_initial_call=True
+)
+def update_table(value):
+    global data
+
+    if data is None:
+        return None
+
+    return [
+        {'index': i+1, 'X': x, 'Y': y}
+        for i, (x, y) in enumerate(zip(np.round(data[0], 2), np.round(data[1], 2)))
+    ]
+
+
+@app.callback(
     Output('algorithm_dropdown', 'options'),
     Output('algorithm_dropdown', 'style'),
     Output('button', 'style'),
@@ -58,7 +77,7 @@ def update_algorithms(value):
     elif value == "Regression":
         return ['Linear Regression'], {'display': 'block'}, {'display': 'inline-block'}
     elif value == "Clustering":
-        return ['KNearestNeighbor'], {'display': 'block'}, {'display': 'inline-block'}
+        return ['KNearestNeighbors'], {'display': 'block'}, {'display': 'inline-block'}
 
 
 @app.callback(
@@ -78,15 +97,18 @@ def update_options(value):
 
     if not value:
         return [], [], None, {}, {}, {}, {}, []
+
     elif value == "Support Vector Classifier":
         model = SupportVectorClassifier()
         return ['Sub-Gradient Descent', "Newton's Method"],\
             ["Lasso (L1)", 'Ridge (L2)'], 0.01, {'display': 'block'}, \
             {'display': 'block'}, {'display': 'block'}, {}, []
+
     elif value == "Logistic Regression":
         model = LogisticRegression()
         return ['Sub-Gradient Descent'], ['Lasso (L1)'], 0.01, {'display': 'block'}, \
             {'display': 'block'}, {'display': 'block'}, {}, []
+
     elif value == "Linear Regression":
         model = LinearRegression()
         return ['', ""], [""], None, {}, \

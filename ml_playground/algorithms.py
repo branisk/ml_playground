@@ -7,15 +7,13 @@ import plotly.graph_objects as go
 class LinearRegression:
     def __init__(
             self,
-            n_features=2,
+            n_features = 1,
             max_iterations=1,
             optimizer="OLS"
     ):
         self.max_iter = max_iterations
         self.optimizer = optimizer
-        self.beta = 0  # Weight term
-        self.alpha = 0
-        self.epsilon = 0
+        self.weights = np.zeros(n_features + 1)  # Weight term
 
     def fit(self, X, Y):
         n = len(X)
@@ -27,15 +25,18 @@ class LinearRegression:
         syy = np.dot(Y.T, Y)
         sxy = np.dot(X.T, Y)
 
-        self.beta = (n*sxy - sx*sy) / (n*sxx - sx*sx)
-        self.alpha = (sy/n - self.beta*sx/n)
+        self.weights[1] = (n*sxy - sx*sy) / (n*sxx - sx*sx)
+        self.weights[0] = (sy/n - self.weights[1]*sx/n)
 
         fig = px.scatter()
         x_vals = np.linspace(np.min(X), np.max(X), 100)
-        y_vals = (x_vals * self.beta) + self.alpha
+        y_vals = (x_vals * self.weights[1]) + self.weights[0]
         fig.add_trace(px.line(x=x_vals, y=y_vals).data[0])
 
         return fig
+
+    def predict(self, x):
+        return (x * self.weights[1]) + self.weights[0]
 
 
 #  Classification Methods
@@ -67,9 +68,6 @@ class LogisticRegression:
         y_vals = -(self.W[0] * x_vals + self.W[1]) / self.W[1]
         fig.add_trace(px.line(x=x_vals, y=y_vals).data[0])
 
-        print("Logistic Regression is fit")
-        print(self.accuracy(X, Y))
-
         return fig
 
     def _sgd_step(self, X, Y):
@@ -81,7 +79,7 @@ class LogisticRegression:
         self.W -= self.eta * grad
 
     def predict(self, X):
-        return 1 / (1 + np.exp(-np.dot(X, self.W)))
+        return 1 / (1 + np.exp(-np.dot(X, self.W)))  # Logistic Function
 
     def cross_entropy_loss(self, X, Y):
         predictions = self.predict(X)
