@@ -27,6 +27,10 @@ body {
     position: inline-block !important;
 }
 
+#regression_method_dropdown {
+    display: none;
+}
+
 #optimizer_dropdown {
     display: none;
 }

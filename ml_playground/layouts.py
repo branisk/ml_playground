@@ -9,9 +9,10 @@ base_layout = html.Div(className="container", children=[
         html.H1("Machine Learning from Scratch", className="title-text")
     ]),
     html.Div(className="Parameters center", style={"width":"80%"}, children=[
-        dcc.Dropdown(['Simulation', 'Iris'], id='dataset_dropdown', placeholder='Dataset'),
+        dcc.Dropdown(['Simulation', 'Iris', 'Regression'], id='dataset_dropdown', placeholder='Dataset'),
         dcc.Dropdown(['Classification', 'Regression', 'Clustering'], id='type_dropdown', placeholder='Type'),
         dcc.Dropdown([''], id='algorithm_dropdown', placeholder='Algorithm'),
+        dcc.Dropdown([''], id='regression_method_dropdown', placeholder='Method'),
         dcc.Dropdown([''], id='optimizer_dropdown', placeholder='Optimizer'),
         html.Div([
             dcc.Dropdown([''], id='regularization_dropdown', placeholder='Regularization Type', className="inline"),
