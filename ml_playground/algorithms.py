@@ -2,6 +2,43 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 
+
+#  Regression Methods
+class LinearRegression:
+    def __init__(
+            self,
+            n_features=2,
+            max_iterations=1,
+            optimizer="OLS"
+    ):
+        self.max_iter = max_iterations
+        self.optimizer = optimizer
+        self.beta = 0  # Weight term
+        self.alpha = 0
+        self.epsilon = 0
+
+    def fit(self, X, Y):
+        n = len(X)
+
+        print(Y)
+        sx = np.sum(X)
+        sy = np.sum(Y)
+        sxx = np.dot(X.T, X)
+        syy = np.dot(Y.T, Y)
+        sxy = np.dot(X.T, Y)
+
+        self.beta = (n*sxy - sx*sy) / (n*sxx - sx*sx)
+        self.alpha = (sy/n - self.beta*sx/n)
+
+        fig = px.scatter()
+        x_vals = np.linspace(np.min(X), np.max(X), 100)
+        y_vals = (x_vals * self.beta) + self.alpha
+        fig.add_trace(px.line(x=x_vals, y=y_vals).data[0])
+
+        return fig
+
+
+#  Classification Methods
 class LogisticRegression:
     def __init__(
             self,
@@ -183,3 +220,11 @@ class SupportVectorClassifier:
         print(f"Testing accuracy: {accuracy:.2f}%")
 
         return accuracy
+
+
+#
+class KMeans:
+    def __init__(
+            self
+    ):
+        return

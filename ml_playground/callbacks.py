@@ -25,13 +25,21 @@ def update_graph(value, button):
             elif value == "Simulation":
                 fig, data = gather_simulation()
                 return fig
+            elif value == "Regression":
+                fig, data = gather_regression()
+                return fig
 
         case 'button':
-            X = data[:, :2]
-            Y = data[:, 2:3]
-            hyperplane = model.fit(X, Y)
+            if value != "Regression":
+                X = data[:, :2]
+                Y = data[:, 2:3]
+            else:
+                X = data[0]
+                Y = data[1]
 
-            fw = go.FigureWidget(data=fig.data + hyperplane.data, layout=fig.layout)
+            fit_fig = model.fit(X, Y)
+            fw = go.FigureWidget(data=fig.data + fit_fig.data, layout=fig.layout)
+
             return fw
 
 
@@ -60,6 +68,8 @@ def update_algorithms(value):
     Output('optimizer_dropdown', 'style'),
     Output('regularization_dropdown', 'style'),
     Output('regularization_input', 'style'),
+    Output('regression_method_dropdown', 'style'),
+    Output('regression_method_dropdown', 'options'),
     Input('algorithm_dropdown', 'value'),
     prevent_initial_call=True
 )
@@ -67,17 +77,20 @@ def update_options(value):
     global model
 
     if not value:
-        return [''], [''], None, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}
+        return [], [], None, {}, {}, {}, {}, []
     elif value == "Support Vector Classifier":
         model = SupportVectorClassifier()
         return ['Sub-Gradient Descent', "Newton's Method"],\
             ["Lasso (L1)", 'Ridge (L2)'], 0.01, {'display': 'block'}, \
-            {'display': 'block'}, {'display': 'block'}
+            {'display': 'block'}, {'display': 'block'}, {}, []
     elif value == "Logistic Regression":
         model = LogisticRegression()
-        return ['', ""], [""], 0.01, {'display': 'block'}, \
-            {'display': 'block'}, {'display': 'block'}
-
+        return ['Sub-Gradient Descent'], ['Lasso (L1)'], 0.01, {'display': 'block'}, \
+            {'display': 'block'}, {'display': 'block'}, {}, []
+    elif value == "Linear Regression":
+        model = LinearRegression()
+        return ['', ""], [""], None, {}, \
+            {}, {}, {'display': 'block'}, ["OLS"]
 
 @app.callback(
     Output('none1', 'style'),

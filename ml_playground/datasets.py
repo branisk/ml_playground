@@ -3,7 +3,26 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn import datasets
-from sklearn.datasets import make_blobs
+from sklearn.datasets import make_blobs, make_regression
+
+
+def gather_regression():
+    X, Y = make_regression(n_samples=100, n_features=2, effective_rank=.1, random_state=42)
+    Y = X[:, 1]
+    X = X[:, 0]
+
+    fig = go.FigureWidget(px.scatter(x=X, y=Y))
+
+    fig.update_layout(
+        title='Simulation Dataset',
+        xaxis=dict(title='X'),
+        yaxis=dict(title='Y'),
+        template="plotly_dark"
+    )
+
+    data = np.vstack((X, Y))
+
+    return fig, data
 
 
 def gather_simulation():
