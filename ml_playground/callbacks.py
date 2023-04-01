@@ -11,7 +11,6 @@ fig, data, model = None, None, None
 
 @app.callback(
     Output('graph', 'figure'),
-    Output('graph', 'figure'),
     Input('dataset_dropdown', 'value'),
     Input('button', 'n_clicks'),
     prevent_initial_call=True
