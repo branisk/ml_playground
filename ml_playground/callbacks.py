@@ -6,29 +6,30 @@ from app import app
 from datasets import *
 
 global fig, data, model
-data = None
+fig, data, model = None, None, None
 
 
 @app.callback(
+    Output('graph', 'figure'),
     Output('graph', 'figure'),
     Input('dataset_dropdown', 'value'),
     Input('button', 'n_clicks'),
     prevent_initial_call=True
 )
-def update_graph(value, button):
+def update_results(value, button):
     global fig, data, model
-    triggered_id = dash.callback_context.triggered_id
 
-    match triggered_id:
+    #  Cases based on which component triggered the callback
+    #  Note: We are only allowed one callback per output, so we must combine the dataset_dropdown and training button
+    match dash.callback_context.triggered_id:
         case 'dataset_dropdown':
-            if value == "Iris":
-                fig, data = gather_iris()
-                return fig
-            elif value == "Simulation":
-                fig, data = gather_simulation()
+            if value == "Classification":
+                fig, data = gather_classification()
                 return fig
             elif value == "Regression":
                 fig, data = gather_regression()
+                return fig
+            elif value == "Clustering":
                 return fig
 
         case 'button':
@@ -43,6 +44,23 @@ def update_graph(value, button):
             fw = go.FigureWidget(data=fig.data + fit_fig.data, layout=fig.layout)
 
             return fw
+
+@app.callback(
+    Output('algorithm_dropdown', 'options'),
+    Output('algorithm_dropdown', 'style'),
+    Output('button', 'style'),
+    Input('dataset_dropdown', 'value'),
+    prevent_initial_call=True
+)
+def update_algorithms(value):
+    if value == "None":
+        return [''], {''}, {''}
+    elif value == "Classification":
+        return ['Support Vector Classifier', 'Logistic Regression'], {'display': 'block'}, {'display': 'inline-block'}
+    elif value == "Regression":
+        return ['Linear Regression'], {'display': 'block'}, {'display': 'inline-block'}
+    elif value == "Clustering":
+        return ['KNearestNeighbors'], {'display': 'block'}, {'display': 'inline-block'}
 
 
 @app.callback(
@@ -63,24 +81,6 @@ def update_table(value):
 
 
 @app.callback(
-    Output('algorithm_dropdown', 'options'),
-    Output('algorithm_dropdown', 'style'),
-    Output('button', 'style'),
-    Input('type_dropdown', 'value'),
-    prevent_initial_call=True
-)
-def update_algorithms(value):
-    if value == "None":
-        return [''], {''}, {''}
-    if value == "Classification":
-        return ['Support Vector Classifier', 'Logistic Regression'], {'display': 'block'}, {'display': 'inline-block'}
-    elif value == "Regression":
-        return ['Linear Regression'], {'display': 'block'}, {'display': 'inline-block'}
-    elif value == "Clustering":
-        return ['KNearestNeighbors'], {'display': 'block'}, {'display': 'inline-block'}
-
-
-@app.callback(
     Output('optimizer_dropdown', 'options'),
     Output('regularization_dropdown', 'options'),
     Output('regularization_input', 'value'),
@@ -92,7 +92,7 @@ def update_algorithms(value):
     Input('algorithm_dropdown', 'value'),
     prevent_initial_call=True
 )
-def update_options(value):
+def update_layout(value):
     global model
 
     if not value:
@@ -114,36 +114,25 @@ def update_options(value):
         return ['', ""], [""], None, {}, \
             {}, {}, {'display': 'block'}, ["OLS"]
 
+
 @app.callback(
-    Output('none1', 'style'),
+    Output('none', 'style'),
     Input('optimizer_dropdown', 'value'),
-    prevent_initial_call=True
-)
-def update_optimizer(value):
-    global model
-
-    if value:
-        model.optimizer = value
-
-@app.callback(
-    Output('none2', 'style'),
     Input('regularization_dropdown', 'value'),
-    prevent_initial_call=True
-)
-def update_regularization_type(value):
-    global model
-
-    if value:
-        model.regularization_type = value
-
-
-@app.callback(
-    Output('none3', 'style'),
     Input('regularization_input', 'value'),
     prevent_initial_call=True
 )
-def update_regularization_term(value):
+def update_values(optimizer, regularization_type, regularization_value):
     global model
 
-    if value:
-        model.C = float(value)
+    if model is None:
+        return
+
+    #  Cases based on which component triggered the callback
+    match dash.callback_context.triggered_id:
+        case 'optimizer_dropdown':
+            model.optimizer = optimizer
+        case 'regularization_dropdown':
+            model.regularization_type = regularization_type
+        case 'regularization_value':
+            model.C = float(regularization_value)
