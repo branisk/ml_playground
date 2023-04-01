@@ -3,7 +3,9 @@ from dash import html, dcc, dash_table, callback_context
 
 base_layout = html.Div(className="container", children=[
     html.P(id='none'),  # Dummy component, used to update model
-
+    dcc.Store(id='fig-store'),
+    dcc.Store(id='data-store'),
+    dcc.Store(id='model-store'),
     html.Div(className="Title center", children=[
         html.H1("Machine Learning from Scratch", className="title-text")
     ]),

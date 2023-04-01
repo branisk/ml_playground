@@ -22,8 +22,6 @@ def gather_regression():
 
     data = np.vstack((X, Y))
 
-    print(data)
-
     return fig, data
 
 

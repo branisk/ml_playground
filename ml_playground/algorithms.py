@@ -18,7 +18,6 @@ class LinearRegression:
     def fit(self, X, Y):
         n = len(X)
 
-        print(Y)
         sx = np.sum(X)
         sy = np.sum(Y)
         sxx = np.dot(X.T, X)

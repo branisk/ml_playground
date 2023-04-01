@@ -1,48 +1,54 @@
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from algorithms import *
 from app import app
 from datasets import *
 
-global fig, data, model
-fig, data, model = None, None, None
+global model
+model = None
 
 
 @app.callback(
     Output('graph', 'figure'),
-    Input('dataset_dropdown', 'value'),
+    Output('fig-store', 'data'),
+    Output('data-store', 'data'),
     Input('button', 'n_clicks'),
+    Input('dataset_dropdown', 'value'),
+    State('fig-store', 'data'),
+    State('data-store', 'data'),
     prevent_initial_call=True
 )
-def update_results(value, button):
-    global fig, data, model
+def update_results(button, value, fig, data):
+    global model
 
     #  Cases based on which component triggered the callback
-    #  Note: We are only allowed one callback per output, so we must combine the dataset_dropdown and training button
     match dash.callback_context.triggered_id:
         case 'dataset_dropdown':
             if value == "Classification":
                 fig, data = gather_classification()
-                return fig
+                return fig, fig.to_dict(), data.tolist()
             elif value == "Regression":
                 fig, data = gather_regression()
-                return fig
+                return fig, fig.to_dict(), data.tolist()
             elif value == "Clustering":
-                return fig
+                fig, data = None, None
+                return fig, fig, data
 
         case 'button':
+            #  Regression is used for 2d datasets, where Classification has a 3rd column for 'label
             if value != "Regression":
                 X = data[:, :2]
                 Y = data[:, 2:3]
             else:
-                X = data[0]
-                Y = data[1]
+                X = np.array(data[0])
+                Y = np.array(data[1])
 
             fit_fig = model.fit(X, Y)
-            fw = go.FigureWidget(data=fig.data + fit_fig.data, layout=fig.layout)
+            fw = go.FigureWidget(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
 
-            return fw
+            return fw, fig, data
+
 
 @app.callback(
     Output('algorithm_dropdown', 'options'),
@@ -52,6 +58,7 @@ def update_results(value, button):
     prevent_initial_call=True
 )
 def update_algorithms(value):
+    #  When the desired dataset is chosen, we need to un-hide the relevant ML algorithms
     if value == "None":
         return [''], {''}, {''}
     elif value == "Classification":
@@ -64,12 +71,10 @@ def update_algorithms(value):
 
 @app.callback(
     Output('table', 'data'),
-    Input('dataset_dropdown', 'value'),
+    Input('data-store', 'data'),
     prevent_initial_call=True
 )
-def update_table(value):
-    global data
-
+def update_table(data):
     if data is None:
         return None
 
