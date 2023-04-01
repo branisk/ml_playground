@@ -78,10 +78,10 @@ class LogisticRegression:
         self.W -= self.eta * grad
 
     def predict(self, x):
-        return 1 / (1 + np.exp(-np.dot(X, self.x)))  # Logistic Function
+        return 1 / (1 + np.exp(x**2))  # Logistic Function
 
     def cross_entropy_loss(self, X, Y):
-        predictions = [np.sum(self.predict(x)) for x in X]
+        predictions = np.array(np.sum([self.predict(x) for x in X]))
         regularization_term = self.C * np.dot(self.W[:-1], self.W[:-1])
         loss = -np.mean(Y * np.log(predictions) + (1 - Y) * np.log(1 - predictions)) + regularization_term
         return loss

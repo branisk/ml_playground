@@ -36,13 +36,14 @@ def update_results(button, value, fig, data):
                 return fig, fig, data
 
         case 'button':
-            #  Regression is used for 2d datasets, where Classification has a 3rd column for 'label
+            data = np.array(data)
+            #  Regression is used for 2d datasets, where Classification has a 3rd column for 'label'
             if value != "Regression":
                 X = data[:, :2]
                 Y = data[:, 2:3]
             else:
-                X = np.array(data[0])
-                Y = np.array(data[1])
+                X = data[0]
+                Y = data[1]
 
             fit_fig = model.fit(X, Y)
             fw = go.FigureWidget(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
