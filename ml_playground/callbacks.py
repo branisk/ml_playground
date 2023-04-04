@@ -1,5 +1,6 @@
 import dash
 from dash.dependencies import Input, Output, State
+from dash import dash_table
 
 from algorithms import *
 from app import app
@@ -8,6 +9,7 @@ from datasets import *
 global model
 model = None
 
+regression_metrics = ['R2 Score', 'RMSE', 'MSE', 'MAE']
 
 @app.callback(
     Output('graph', 'figure'),
@@ -141,3 +143,26 @@ def update_values(optimizer, regularization_type, regularization_value):
             model.regularization_type = regularization_type
         case 'regularization_value':
             model.C = float(regularization_value)
+
+
+@app.callback(
+    Output('results-table', 'columns'),
+    Output('results-table', 'data'),
+    Input('dataset_dropdown', 'value'),
+    prevent_initial_call=True
+)
+def update_layout(value):
+    if not value:
+        return
+
+    elif value == "Classification":
+        return
+
+    elif value == "Regression":
+        columns = [{'id': 'metric', 'name': '', 'editable': False},
+                   {'id': 'value', 'name': 'values', 'editable': False}]
+        rows = [{'metric': metric, 'value': None} for metric in regression_metrics]
+        return columns, rows
+
+    elif value == "Clustering":
+        return

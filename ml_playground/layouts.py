@@ -22,7 +22,7 @@ base_layout = html.Div(className="container", children=[
             className="input-group-append",
             id="regularization_group"
         ),
-        html.Button('Step', id='button', style={'display':'none'})
+        html.Button('Step', id='button', style={'display': 'none'})
     ]),
 
     html.Div(className="Graphs", children=[
@@ -54,7 +54,11 @@ base_layout = html.Div(className="container", children=[
     ]),
 
     html.Div(className="Results", children=[
-        html.H4("Results", id="results", className="center")
+        html.H4("Results", id="results", className="center"),
+        dash_table.DataTable(
+            id="results-table",
+            style_table={'width':'80%', 'padding':'10px'}
+        )
     ]),
 
     html.Div(className="Logo", children=[
