@@ -49,7 +49,7 @@ base_layout = html.Div(className="container", children=[
                  {'id': 'X', 'name': 'X', 'editable': False},
                  {'id': 'Y', 'name': 'Y', 'editable': False}]
             ),
-            style_table={'height': '200px', 'overflowY': 'auto'}
+            style_table={'height': '180px', 'overflowY': 'auto'}
         )
     ]),
 

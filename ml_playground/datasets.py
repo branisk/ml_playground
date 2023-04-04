@@ -7,7 +7,7 @@ from sklearn.datasets import make_blobs, make_regression
 
 
 def gather_regression():
-    X, Y = make_regression(n_samples=100, n_features=2, effective_rank=.1, random_state=42)
+    X, Y = make_regression(n_samples=400, n_features=2, effective_rank=.05, random_state=42)
     Y = X[:, 1]
     X = X[:, 0]
 
