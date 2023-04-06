@@ -57,7 +57,7 @@ base_layout = html.Div(className="container", children=[
         html.H4("Results", id="results", className="center"),
         dash_table.DataTable(
             id="results-table",
-            style_table={'width':'80%', 'padding':'10px'}
+            style_table={'width':'80%', 'padding-left':'10px'}
         )
     ]),
 

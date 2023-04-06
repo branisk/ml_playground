@@ -14,6 +14,7 @@ class LinearRegression:
         self.max_iter = max_iterations
         self.optimizer = optimizer
         self.weights = np.zeros(n_features + 1)  # Weight term
+        self.results = [None] * 5
 
     def fit(self, X, Y):
         n = len(X)
@@ -27,15 +28,31 @@ class LinearRegression:
         self.weights[1] = (n*sxy - sx*sy) / (n*sxx - sx*sx)
         self.weights[0] = (sy/n - self.weights[1]*sx/n)
 
-        fig = px.scatter()
-        x_vals = np.linspace(np.min(X), np.max(X), 100)
-        y_vals = (x_vals * self.weights[1]) + self.weights[0]
-        fig.add_trace(px.line(x=x_vals, y=y_vals).data[0])
+        fig = self._plot_best_fit(X)
+        self._update_results(X, Y)
 
         return fig
 
-    def predict(self, x):
-        return (x * self.weights[1]) + self.weights[0]
+    def _plot_best_fit(self, X):
+        fig = px.scatter()
+        x_vals = np.linspace(np.min(X), np.max(X), 100)
+        y_vals = (x_vals * self.weights[1]) + self.weights[0]
+        fig.add_trace(px.line(x=x_vals, y=y_vals, color_discrete_sequence=['red']).data[0])
+
+        return fig
+
+    def _update_results(self, X, Y):
+        Y_pred = self.predict(X)
+        self.results = [
+            f'{round(self.weights[1], 2)}x + {round(self.weights[0], 2)}',
+            r2_score(Y_pred, Y),
+            rmse(Y_pred, Y),
+            mse(Y_pred, Y),
+            mae(Y_pred, Y)
+        ]
+
+    def predict(self, X):
+        return (X * self.weights[1]) + self.weights[0]
 
 
 #  Classification Methods
@@ -114,19 +131,7 @@ class SupportVectorClassifier:
             elif self.optimizer == "Newton's Method":
                 self._newton_step(X, Y)
 
-        # Plot the hyperplane
-        fig = px.scatter()
-        x_vals = np.linspace(np.min(X[:, 0]), np.max(X[:, 0]), 100)
-        y_vals = (-self.b - self.W[0] * x_vals) / self.W[1]
-        fig.add_trace(px.line(x=x_vals, y=y_vals).data[0])
-
-        # Add dotted decision boundary
-        y_margin = 1 / self.W[1]
-        y_upper = y_vals + y_margin
-        y_lower = y_vals - y_margin
-        fig.add_trace(go.Scatter(x=x_vals, y=y_upper, line=dict(dash="dash"), name="Upper margin"))
-        fig.add_trace(go.Scatter(x=x_vals, y=y_lower, line=dict(dash="dash"), name="Lower margin"))
-
+        fig = self._plot_hyperplane(X)
         print("SVM is fit.")
 
         return fig
@@ -187,6 +192,22 @@ class SupportVectorClassifier:
         # Update weights and bias
         self.b -= newton_direction[0]
         self.W -= newton_direction[1:]
+
+    def _plot_hyperplane(self, X):
+        # Plot the hyperplane
+        fig = px.scatter()
+        x_vals = np.linspace(np.min(X[:, 0]), np.max(X[:, 0]), 100)
+        y_vals = (-self.b - self.W[0] * x_vals) / self.W[1]
+        fig.add_trace(px.line(x=x_vals, y=y_vals).data[0])
+
+        # Add dotted decision boundary
+        y_margin = 1 / self.W[1]
+        y_upper = y_vals + y_margin
+        y_lower = y_vals - y_margin
+        fig.add_trace(go.Scatter(x=x_vals, y=y_upper, line=dict(dash="dash"), name="Upper margin"))
+        fig.add_trace(go.Scatter(x=x_vals, y=y_lower, line=dict(dash="dash"), name="Lower margin"))
+
+        return fig
 
     def hinge_loss(self, X, Y):
         distance_sum = 0

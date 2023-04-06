@@ -9,7 +9,8 @@ from datasets import *
 global model
 model = None
 
-regression_metrics = ['R2 Score', 'RMSE', 'MSE', 'MAE']
+regression_metrics = ['Equation', 'R2 Score', 'RMSE', 'MSE', 'MAE']
+
 
 @app.callback(
     Output('graph', 'figure'),
@@ -149,9 +150,12 @@ def update_values(optimizer, regularization_type, regularization_value):
     Output('results-table', 'columns'),
     Output('results-table', 'data'),
     Input('dataset_dropdown', 'value'),
+    Input('button', 'n_clicks'),
     prevent_initial_call=True
 )
-def update_layout(value):
+def update_results_layout(value, button):
+    global model
+
     if not value:
         return
 
@@ -159,10 +163,15 @@ def update_layout(value):
         return
 
     elif value == "Regression":
+        if model is None:
+            results = [None] * 5
+        else:
+            results = model.results
         columns = [{'id': 'metric', 'name': '', 'editable': False},
                    {'id': 'value', 'name': 'values', 'editable': False}]
-        rows = [{'metric': metric, 'value': None} for metric in regression_metrics]
+        rows = [{'metric': metric, 'value': result} for metric, result in zip(regression_metrics, results)]
         return columns, rows
 
     elif value == "Clustering":
         return
+
