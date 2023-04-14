@@ -23,3 +23,30 @@ def rmse(Y_pred, Y_actual):
 def mae(Y_pred, Y_actual):
     n = len(Y_pred)
     return np.abs(np.sum(Y_actual - Y_pred)) / n
+
+
+#  Classification Metrics
+#  Recall, the proportion of true positives among all positive samples
+def recall(y_true, y_pred):
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+    fn = np.sum((y_true == 1) & (y_pred == 0))
+    return tp / (tp + fn)
+
+
+#  Precision, the proportion of true positives among predicted positive samples
+def precision(y_true, y_pred):
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+    fp = np.sum((y_true == 0) & (y_pred == 1))
+    return tp / (tp + fp)
+
+
+#  F1 Score, the harmonic mean of precision and recall
+def f1_score(y_true, y_pred):
+    p = precision(y_true, y_pred)
+    r = recall(y_true, y_pred)
+    return 2 * (p * r) / (p + r)
+
+
+#  Accuracy, the proportion of correctly classified samples
+def accuracy(y_true, y_pred):
+    return np.mean(y_true == y_pred)

@@ -104,13 +104,6 @@ class LogisticRegression:
         loss = -np.mean(Y * np.log(predictions) + (1 - Y) * np.log(1 - predictions)) + regularization_term
         return loss
 
-    def accuracy(self, X, Y):
-        successes = sum(1 for i in range(len(X)) if self.predict(X[i]) == Y[i])
-        accuracy = successes / len(X) * 100
-        print(f"Testing accuracy: {accuracy:.2f}%")
-
-        return accuracy
-
 
 class SupportVectorClassifier:
     def __init__(self, n_features=2, kernel='linear', learning_rate=0.01,
@@ -124,6 +117,7 @@ class SupportVectorClassifier:
         self.b = 0  # "bias" or "intercept" term
         self.regularization_type = regularization_type  # L2=Ridge, L1=Lasso
         self.optimizer = optimizer
+        self.results = [None] * 5
 
     def fit(self, X, Y):
         for i in range(self.max_iter):
@@ -133,7 +127,7 @@ class SupportVectorClassifier:
                 self._newton_step(X, Y)
 
         fig = self._plot_hyperplane(X)
-        print("SVM is fit.")
+        self._update_results(X, Y)
 
         return fig
 
@@ -150,7 +144,6 @@ class SupportVectorClassifier:
                 w_grad -= y_i * x_i
                 b_grad -= y_i
 
-        print(self.regularization_type)
         #  Update the gradients based on the regularization type
         if self.regularization_type == "Ridge (L2)":
             w_grad += self.W + (self.C * w_grad)
@@ -230,15 +223,18 @@ class SupportVectorClassifier:
 
         return loss
 
-    def predict(self, x):
-        return 1 if np.dot(self.W, x) + self.   b >= 0 else -1
+    def _update_results(self, X, Y):
+        Y_pred = self.predict(X)
+        self.results = [
+            f'{self.W}x + {self.b}',
+            recall(Y_pred, Y),
+            precision(Y_pred, Y),
+            f1_score(Y_pred, Y),
+            accuracy(Y_pred, Y)
+        ]
 
-    def accuracy(self, X, Y):
-        successes = sum(1 for i in range(len(X)) if self.predict(X[i]) == Y[i])
-        accuracy = successes / len(X) * 100
-        print(f"Testing accuracy: {accuracy:.2f}%")
-
-        return accuracy
+    def predict(self, X):
+        return np.array([1 if np.dot(self.W, x_i) + self.b >= 0 else -1 for x_i in X])
 
 
 #  Clustering Algorithms

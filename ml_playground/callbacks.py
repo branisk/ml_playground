@@ -10,6 +10,7 @@ global model
 model = None
 
 regression_metrics = ['Equation', 'R2 Score', 'RMSE', 'MSE', 'MAE']
+classification_metrics = ['Equation', 'Recall', 'Precision', 'F1 Score', 'Accuracy']
 
 
 @app.callback(
@@ -75,17 +76,26 @@ def update_algorithms(value):
 
 @app.callback(
     Output('table', 'data'),
+    Input('dataset_dropdown', 'value'),
     Input('data-store', 'data'),
     prevent_initial_call=True
 )
-def update_table(data):
-    if data is None:
-        return None
-
-    return [
-        {'index': i+1, 'X': x, 'Y': y}
-        for i, (x, y) in enumerate(zip(np.round(data[0], 2), np.round(data[1], 2)))
-    ]
+def update_data(dataset, data):
+    if dataset == "Classification":
+        col1 = [row[0] for row in data]
+        col2 = [row[1] for row in data]
+        col3 = [row[2] for row in data]
+        return [
+            {'index': i + 1, 'X': x, 'Y': y, 'label': z}
+            for i, (x, y, z) in enumerate(zip(np.round(col1, 2), np.round(col2, 2), col3))
+        ]
+    elif dataset == "Regression":
+        return [
+            {'index': i + 1, 'X': x, 'Y': y}
+            for i, (x, y) in enumerate(zip(np.round(data[0], 2), np.round(data[1], 2)))
+        ]
+    elif dataset == "Clustering":
+        return
 
 
 @app.callback(
@@ -157,21 +167,25 @@ def update_results_layout(value, button):
     global model
 
     if not value:
-        return
+        return [None] * 5
 
-    elif value == "Classification":
-        return
+    if model is None:
+        results = [None] * 5
+    else:
+        results = model.results
+
+    if value == "Classification":
+        columns = [{'id': 'metric', 'name': '', 'editable': False},
+                   {'id': 'value', 'name': 'values', 'editable': False}]
+        rows = [{'metric': metric, 'value': result} for metric, result in zip(classification_metrics, results)]
+        return columns, rows
 
     elif value == "Regression":
-        if model is None:
-            results = [None] * 5
-        else:
-            results = model.results
         columns = [{'id': 'metric', 'name': '', 'editable': False},
                    {'id': 'value', 'name': 'values', 'editable': False}]
         rows = [{'metric': metric, 'value': result} for metric, result in zip(regression_metrics, results)]
         return columns, rows
 
     elif value == "Clustering":
-        return
+        return [None] * 5
 

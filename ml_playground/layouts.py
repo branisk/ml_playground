@@ -75,12 +75,7 @@ base_layout = html.Div(className="container", children=[
         ]),
         dash_table.DataTable(
             id="table",
-            columns=(
-                [{'id': 'index', 'name': '', 'editable': False},
-                 {'id': 'X', 'name': 'X', 'editable': False},
-                 {'id': 'Y', 'name': 'Y', 'editable': False}]
-            ),
-            style_table={'height': '155px', 'overflowY': 'auto'}
+            style_table={'height': '155px', 'overflowY': 'auto'},
         )
     ]),
 
@@ -88,7 +83,7 @@ base_layout = html.Div(className="container", children=[
         html.H4("Results", id="results-text", className=""),
         dash_table.DataTable(
             id="results-table",
-            style_table={'width': '80%'}
+            style_table={'width': '80%', 'max-width': '80%'}
         )
     ]),
 
