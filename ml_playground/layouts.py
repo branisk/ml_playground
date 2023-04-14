@@ -1,16 +1,19 @@
+import dash_bootstrap_components
 import plotly.express as px
-from dash import html, dcc, dash_table, callback_context
+from dash import dcc, html, dash_table, callback_context
+import dash_bootstrap_components as dbc
 
 base_layout = html.Div(className="container", children=[
     html.P(id='none'),  # Dummy component, used to update model
     dcc.Store(id='fig-store'),
     dcc.Store(id='data-store'),
     dcc.Store(id='model-store'),
+
     html.Div(className="Title center", children=[
         html.H1("Machine Learning from Scratch", className="title-text")
     ]),
 
-    html.Div(className="Options center", style={"width":"80%"}, children=[
+    html.Div(className="Options center", style={"width": "80%"}, children=[
         dcc.Dropdown(['Classification', 'Regression', 'Clustering'], id='dataset_dropdown', placeholder='Dataset'),
         dcc.Dropdown([''], id='algorithm_dropdown', placeholder='Algorithm'),
         dcc.Dropdown([''], id='regression_method_dropdown', placeholder='Method'),
@@ -29,14 +32,39 @@ base_layout = html.Div(className="container", children=[
         dcc.Graph(id='graph', figure=px.scatter().update_layout(template="plotly_dark")),
     ]),
 
-    html.Div(className="Code", children=[
-        html.H4("Code", className="center"),
+    html.Div(className="Info", children=[
         html.Div(children=[
-            html.H5("Loss Function:"),
-            html.Pre(html.Code(
-                "TODO"
-            ))],
-            className="code-holder"
+            dbc.Accordion(
+                [
+                    dbc.AccordionItem(
+                        [
+                            html.P("This is the content of the first section")
+                        ],
+                        title="Summary",
+                    ),
+                    dbc.AccordionItem(
+                        [
+                            html.P("This is the content of the first section")
+                        ],
+                        title="Assumptions",
+                    ),
+                    dbc.AccordionItem(
+                        [
+                            html.P("This is the content of the first section")
+                        ],
+                        title="Formulation",
+                    ),
+                    dbc.AccordionItem(
+                        [
+                            html.P("This is the content of the first section")
+                        ],
+                        title="More Information",
+                    ),
+                ],
+                start_collapsed=True
+            ),
+        ],
+            className=""
         ),
     ]),
 
@@ -57,11 +85,14 @@ base_layout = html.Div(className="container", children=[
         html.H4("Results", id="results", className="center"),
         dash_table.DataTable(
             id="results-table",
-            style_table={'width':'80%', 'padding-left':'10px'}
+            style_table={'width': '80%', 'padding-left': '10px'}
         )
     ]),
 
-    html.Div(className="Logo", children=[
-        html.H4("Logo", className="center")
+    html.Div(className="Logo text-center center", children=[
+        html.H4("Made by Branislav Kesic", className=""),
+        html.Br(),
+        dcc.Link(html.H5("Github"), href="github.com/branisk"),
+        dcc.Link(html.H5("Portfolio"), href="branisk.com"),
     ]),
 ])

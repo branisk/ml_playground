@@ -2,15 +2,16 @@ body {
   background-color: black;
 }
 
-.container {  display: grid;
+.container {
+  display: grid;
   grid-template-columns: 1fr 1.3fr 0.7fr 1fr;
   grid-template-rows: 0.5fr 1fr 1fr 1fr;
   gap: 0px 0px;
   grid-auto-flow: row;
   grid-template-areas:
     "Title Title Title Title"
-    "Options Graphs Graphs Code"
-    "Options Graphs Graphs Code"
+    "Options Graphs Graphs Info"
+    "Options Graphs Graphs Info"
     "Data Results Results Logo";
   background-color: lightgray;
   outline:2px solid black;
@@ -51,20 +52,6 @@ body {
     display:none;
 }
 
-.code-holder{
-  padding:10px;
-  width: 280px; /* your prefered width */
-  overflow-x: scroll;
-  height: 100%;/* Your prfered height*/
-}
-
-.code-holder code{
- white-space: pre; /* this rule is important*/
-  font-family: Courier New, Courier, monospace;
-  font-size: 16px;
-
-}
-
 .title-text {
   margin-left: -50px;
 }
@@ -75,7 +62,9 @@ body {
 
 .Graphs { grid-area: Graphs; }
 
-.Code { grid-area: Code; }
+.Info { grid-area: Info;
+  margin: auto;
+  width: 80%; }
 
 .Results { grid-area: Results; padding-top: 10px;}
 
