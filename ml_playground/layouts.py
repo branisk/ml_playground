@@ -1,6 +1,5 @@
-import dash_bootstrap_components
 import plotly.express as px
-from dash import dcc, html, dash_table, callback_context
+from dash import dcc, html, dash_table
 import dash_bootstrap_components as dbc
 
 base_layout = html.Div(className="container", children=[
@@ -69,7 +68,11 @@ base_layout = html.Div(className="container", children=[
     ]),
 
     html.Div(className="Data", children=[
-        html.H4("Data", className="center"),
+        html.H4("Data", id="data-text", className="text-center"),
+        dcc.Tabs(id="train-test-tabs", children=[
+            dcc.Tab(label="Train", className="tabs"),
+            dcc.Tab(label="Test", className="tabs"),
+        ]),
         dash_table.DataTable(
             id="table",
             columns=(
@@ -77,15 +80,15 @@ base_layout = html.Div(className="container", children=[
                  {'id': 'X', 'name': 'X', 'editable': False},
                  {'id': 'Y', 'name': 'Y', 'editable': False}]
             ),
-            style_table={'height': '180px', 'overflowY': 'auto'}
+            style_table={'height': '155px', 'overflowY': 'auto'}
         )
     ]),
 
     html.Div(className="Results", children=[
-        html.H4("Results", id="results", className="center"),
+        html.H4("Results", id="results-text", className=""),
         dash_table.DataTable(
             id="results-table",
-            style_table={'width': '80%', 'padding-left': '10px'}
+            style_table={'width': '80%'}
         )
     ]),
 

@@ -52,6 +52,19 @@ body {
     display:none;
 }
 
+#results-text {
+    padding-left: 45%
+}
+
+#results-table {
+    padding-left: 20%
+}
+
+.tabs {
+    padding-top: 0px !important;
+    height: 20px;
+}
+
 .title-text {
   margin-left: -50px;
 }
@@ -66,9 +79,9 @@ body {
   margin: auto;
   width: 80%; }
 
-.Results { grid-area: Results; padding-top: 10px;}
+.Results { grid-area: Results; padding-top: 15px;}
 
-.Data { grid-area: Data; padding-top: 10px;}
+.Data { grid-area: Data; padding-top: 15px;}
 
 .Logo { grid-area: Logo; padding-top: 10px;}
 
