@@ -17,7 +17,7 @@ def gather_regression():
         title='Regression Dataset',
         xaxis=dict(title='X'),
         yaxis=dict(title='Y'),
-        template="plotly_dark"
+        template="plotly_dark",
     )
 
     data = np.vstack((X, Y))
@@ -29,7 +29,7 @@ def gather_classification():
     X, Y = make_blobs(n_samples=50, centers=2, random_state=0, cluster_std=0.60)
     Y = np.where(Y == 0, -1, Y)
 
-    fig = go.FigureWidget(px.scatter(x=X[:, 0], y=X[:, 1], color=Y))
+    fig = go.FigureWidget(px.scatter(x=X[:, 0], y=X[:, 1], color=Y.astype(str)))
 
     fig.update_layout(
         title='Classification Dataset',
