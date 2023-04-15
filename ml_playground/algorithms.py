@@ -73,6 +73,7 @@ class LogisticRegression:
         self.W = np.zeros(n_features)  # Weight term
         self.regularization_type = regularization_type  # L2=Ridge, L1=Lasso
         self.optimizer = optimizer
+        self.results = [None] * 5
 
     def fit(self, X, Y):
         for i in range(self.max_iter):
@@ -119,6 +120,7 @@ class SupportVectorClassifier:
         self.optimizer = optimizer
         self.results = [None] * 5
 
+    #  X is 2 dimensional, and Y are our labels
     def fit(self, X, Y):
         for i in range(self.max_iter):
             if self.optimizer == "Sub-Gradient Descent":
