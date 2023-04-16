@@ -5,12 +5,10 @@ from dash import dash_table
 from algorithms import *
 from app import app
 from datasets import *
+from metrics import *
 
 global model
 model = None
-
-regression_metrics = ['Equation', 'R2 Score', 'RMSE', 'MSE', 'MAE']
-classification_metrics = ['Equation', 'Recall', 'Precision', 'F1 Score', 'Accuracy']
 
 
 @app.callback(
@@ -193,3 +191,16 @@ def update_results_layout(value, button):
     elif value == "Clustering":
         return [None] * 5
 
+
+@app.callback(
+    Output('summary-text', 'children'),
+    Output('objective-text', 'children'),
+    Output('assumptions-text', 'children'),
+    Input('algorithm_dropdown', 'value'),
+    prevent_initial_call=True
+)
+def update_info_layout(algorithm):
+    if not algorithm:
+        return 'None', 'None', 'None'
+    elif algorithm == "Support Vector Classifier":
+        return [values for values in soft_margin_svc.values()]

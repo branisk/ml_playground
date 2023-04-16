@@ -18,6 +18,14 @@ body {
   outline-offset: -10px;
 }
 
+a {
+    color: lightgray;
+}
+
+.accordion-text {
+    font-size: 9px;
+}
+
 #regularization_dropdown {
     width: 80% !important;
     position: inline-block !important;

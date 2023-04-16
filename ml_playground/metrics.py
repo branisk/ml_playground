@@ -1,6 +1,17 @@
 import numpy as np
 
 
+regression_metrics = ['Equation', 'R2 Score', 'RMSE', 'MSE', 'MAE']
+classification_metrics = ['Equation', 'Recall', 'Precision', 'F1 Score', 'Accuracy']
+
+soft_margin_svc = {
+    'summary': 'Find the optimal hyperplane which maximally separates two classes of data.',
+    'mathjax': '\(\min \\frac{1}{2} ||w^{2}|| + C\sum{\max{(0,1-y_i(w^Tx_i+b))}}\)',
+    'assumptions': '1. The Data is Partially Separable\n \
+                    2. Misclassification is allowed within the margin to prevent overfitting, controlled by hyperparameter C'
+}
+
+
 #  Regression Metrics
 #  Return a value between 0 and 1, a larger value represents a greater fit
 def r2_score(Y_pred, Y_actual):

@@ -37,28 +37,29 @@ base_layout = html.Div(className="container", children=[
                 [
                     dbc.AccordionItem(
                         [
-                            html.P("This is the content of the first section")
+                            html.P("Please choose an algorithm.", id="summary-text", className='accordion-text')
                         ],
                         title="Summary",
                     ),
                     dbc.AccordionItem(
+                        id="objective",
+                        children=[
+                            html.P("Please choose an algorithm.", id="objective-text", className='accordion-text')
+                        ],
+                        title="Objective",
+                    ),
+                    dbc.AccordionItem(
                         [
-                            html.P("This is the content of the first section")
+                            html.P("Please choose an algorithm.", id="assumptions-text", className='accordion-text')
                         ],
                         title="Assumptions",
                     ),
                     dbc.AccordionItem(
                         [
-                            html.P("This is the content of the first section")
-                        ],
-                        title="Formulation",
-                    ),
-                    dbc.AccordionItem(
-                        [
-                            html.P("This is the content of the first section")
+                            html.A(href="https://en.wikipedia.org/wiki/Support_vector_machine", children=["https://en.wikipedia.org/wiki/Support_vector_machine"], id="information-text", className='accordion-text')
                         ],
                         title="More Information",
-                    ),
+                    )
                 ],
                 start_collapsed=True
             ),
@@ -90,7 +91,7 @@ base_layout = html.Div(className="container", children=[
     html.Div(className="Logo text-center center", children=[
         html.H4("Made by Branislav Kesic", className=""),
         html.Br(),
-        dcc.Link(html.H5("Github"), href="github.com/branisk"),
-        dcc.Link(html.H5("Portfolio"), href="branisk.com"),
+        dcc.Link(html.H5("Github"), href="https://www.github.com/branisk", target="_blank"),
+        dcc.Link(html.H5("Portfolio"), href="http://www.branisk.com", target="_blank"),
     ]),
 ])
