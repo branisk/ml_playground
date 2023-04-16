@@ -30,7 +30,6 @@ class LinearRegression:
         self.weights[0] = (sy/n - self.weights[1]*sx/n)
 
         fig = self._plot_best_fit(X)
-        self._update_results(X, Y)
 
         return fig
 
@@ -42,7 +41,7 @@ class LinearRegression:
 
         return fig
 
-    def _update_results(self, X, Y):
+    def update_results(self, X, Y):
         Y_pred = self.predict(X)
         self.results = [
             f'{round(self.weights[1], 2)}x + {round(self.weights[0], 2)}',
@@ -129,7 +128,6 @@ class SupportVectorClassifier:
                 self._newton_step(X, Y)
 
         fig = self._plot_hyperplane(X)
-        self._update_results(X, Y)
 
         return fig
 
@@ -225,7 +223,7 @@ class SupportVectorClassifier:
 
         return loss
 
-    def _update_results(self, X, Y):
+    def update_results(self, X, Y):
         Y_pred = self.predict(X)
         self.results = [
             f'{self.W}x + {self.b}',

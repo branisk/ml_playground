@@ -2,7 +2,8 @@ This is a Plotly Dash dashboard built in Python which aims to be a visually info
 
 TODO:
 
-    Add more algorithms
+Add more algorithms
+
     Complete a full prototype for SVM to act as a baseline for other models
     Split data into train and test
     Add more graphs for Residuals, Feature Selection, etc

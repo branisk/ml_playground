@@ -8,7 +8,9 @@ soft_margin_svc = {
     'summary': 'Find the optimal hyperplane which maximally separates two classes of data.',
     'mathjax': '\(\min \\frac{1}{2} ||w^{2}|| + C\sum{\max{(0,1-y_i(w^Tx_i+b))}}\)',
     'assumptions': '1. The Data is Partially Separable\n \
-                    2. Misclassification is allowed within the margin to prevent overfitting, controlled by hyperparameter C'
+                    2. Misclassification is allowed within the margin to prevent overfitting, controlled by hyperparameter C',
+    'info-href': 'https://en.wikipedia.org/wiki/Support_vector_machine',
+    'info-text': 'https://en.wikipedia.org/wiki/Support_vector_machine'
 }
 
 

@@ -56,7 +56,7 @@ base_layout = html.Div(className="container", children=[
                     ),
                     dbc.AccordionItem(
                         [
-                            html.A(href="https://en.wikipedia.org/wiki/Support_vector_machine", children=["https://en.wikipedia.org/wiki/Support_vector_machine"], id="information-text", className='accordion-text')
+                            html.A(id="info-text", className='accordion-text'),
                         ],
                         title="More Information",
                     )
