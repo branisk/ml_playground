@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 
 
 def gather_regression():
-    X, Y = make_regression(n_samples=50, n_features=2, effective_rank=.05, random_state=42)
+    X, Y = make_regression(n_samples=500, n_features=2, effective_rank=.05, random_state=42)
     Y = X[:, 1]
     X = X[:, 0]
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
@@ -30,13 +30,23 @@ def gather_regression():
 
 
 def gather_classification():
-    X, Y = make_blobs(n_samples=50, centers=2, random_state=0, cluster_std=0.60)
+    X, Y = make_blobs(n_samples=500, centers=2, random_state=0, cluster_std=0.90)
     Y = np.where(Y == 0, -1, Y)
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
-    fig = go.FigureWidget(px.scatter(x=X_train[:, 0], y=X_train[:, 1], color=Y_train.astype(str)))
+    scatter1 = px.scatter(x=X_train[:, 0], y=X_train[:, 1], color=Y_train.astype(str))
 
-    scatter2 = px.scatter(x=X_test[:, 0], y=X_test[:, 1], color=Y_test.astype(str)).update_traces(dict(marker_line_width=1, marker_line_color="white"))
+    fig = go.FigureWidget(scatter1)
+
+    scatter2 = px.scatter(
+        x=X_test[:, 0],
+        y=X_test[:, 1],
+        color=np.where(Y_test == 1, "1_test", "-1_test").astype(str),
+        color_discrete_map={
+            "1_test": "orange",
+            "-1_test": "blue"
+        }
+    ).update_traces(dict(marker_line_width=1, marker_line_color="white"))
 
     fig.add_traces(scatter2.data)
 

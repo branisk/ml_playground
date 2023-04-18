@@ -13,6 +13,18 @@ soft_margin_svc = {
     'info-text': 'https://en.wikipedia.org/wiki/Support_vector_machine'
 }
 
+linear_regression = {
+    'summary': 'Model the linear relationship between two variables by finding the line of best fit to the data',
+    'mathjax': '\(\min \\frac{1}{N} \sum{(ypred_i-y_i)^2}\)',
+    'assumptions': '1. Linear relationship between variables\n \
+                    2. No correlation between error terms\n \
+                    3. Constant variance of errors\n \
+                    4. Errors follow a normal distribution\n \
+                    5. Independent variables are not highly correlated',
+    'info-href': 'https://en.wikipedia.org/wiki/Linear_regression',
+    'info-text': 'https://en.wikipedia.org/wiki/Linear_regression'
+}
+
 
 #  Regression Metrics
 #  Return a value between 0 and 1, a larger value represents a greater fit
@@ -42,14 +54,14 @@ def mae(Y_pred, Y_actual):
 #  Recall, the proportion of true positives among all positive samples
 def recall(y_true, y_pred):
     tp = np.sum((y_true == 1) & (y_pred == 1))
-    fn = np.sum((y_true == 1) & (y_pred == 0))
+    fn = np.sum((y_true == 1) & (y_pred == -1))
     return tp / (tp + fn)
 
 
 #  Precision, the proportion of true positives among predicted positive samples
 def precision(y_true, y_pred):
     tp = np.sum((y_true == 1) & (y_pred == 1))
-    fp = np.sum((y_true == 0) & (y_pred == 1))
+    fp = np.sum((y_true == -1) & (y_pred == 1))
     return tp / (tp + fp)
 
 

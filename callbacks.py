@@ -12,7 +12,7 @@ model = None
 
 
 @app.callback(
-    Output('graph', 'figure'),
+    Output('main-graph', 'figure'),
     Output('fig-store', 'data'),
     Output('data-store', 'data'),
     Input('button', 'n_clicks'),
@@ -80,13 +80,18 @@ def update_algorithms(value):
 
 
 @app.callback(
-    Output('table', 'data'),
+    Output('train_table', 'data'),
+    Output('test_table', 'data'),
     Input('dataset_dropdown', 'value'),
     Input('data-store', 'data'),
     Input('algorithm_dropdown', 'value'),
     prevent_initial_call=True
 )
 def update_data(dataset, data, algorithm):
+    X = data[0]
+    Y = data[1]
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+
     if dataset == "Classification":
         col1 = [row[0] for row in data]
         col2 = [row[1] for row in data]
@@ -97,12 +102,12 @@ def update_data(dataset, data, algorithm):
         return [
             {'index': i + 1, 'X': x, 'Y': y, 'label': z}
             for i, (x, y, z) in enumerate(zip(np.round(col1, 2), np.round(col2, 2), col3))
-        ]
+        ], None
     elif dataset == "Regression":
         return [
             {'index': i + 1, 'X': x, 'Y': y}
             for i, (x, y) in enumerate(zip(np.round(data[0], 2), np.round(data[1], 2)))
-        ]
+        ], None
     elif dataset == "Clustering":
         return
 
@@ -217,4 +222,4 @@ def update_info_layout(algorithm):
     elif algorithm == "Logistic Regression":
         return 'None', 'None', 'None', 'None', None
     elif algorithm == "Linear Regression":
-        return 'None', 'None', 'None', 'None', None
+        return [values for values in linear_regression.values()]

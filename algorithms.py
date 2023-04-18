@@ -45,10 +45,10 @@ class LinearRegression:
         Y_pred = self.predict(X)
         self.results = [
             f'{round(self.weights[1], 2)}x + {round(self.weights[0], 2)}',
-            r2_score(Y_pred, Y),
-            rmse(Y_pred, Y),
-            mse(Y_pred, Y),
-            mae(Y_pred, Y)
+            str(round(r2_score(Y_pred, Y)*100, 2)) + "%",
+            round(rmse(Y_pred, Y), 5),
+            round(mse(Y_pred, Y), 5),
+            round(mae(Y_pred, Y), 5)
         ]
 
     def predict(self, X):
@@ -225,12 +225,13 @@ class SupportVectorClassifier:
 
     def update_results(self, X, Y):
         Y_pred = self.predict(X)
+
         self.results = [
-            f'{self.W}x + {self.b}',
-            recall(Y_pred, Y),
-            precision(Y_pred, Y),
-            f1_score(Y_pred, Y),
-            accuracy(Y_pred, Y)
+            f'{np.round(self.W, 2)}x + {np.round(self.b, 2)}',
+            str(round(recall(Y_pred, Y.T[0])*100, 2)) + "%",
+            str(round(precision(Y_pred, Y.T[0])*100, 2)) + "%",
+            str(round(f1_score(Y_pred, Y.T[0])*100, 2)) + "%",
+            str(round(accuracy(Y_pred, Y.T[0])*100, 2)) + "%"
         ]
 
     def predict(self, X):

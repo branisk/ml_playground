@@ -13,12 +13,12 @@ base_layout = html.Div(className="container", children=[
     ]),
 
     html.Div(className="Options center", style={"width": "80%"}, children=[
-        dcc.Dropdown(['Classification', 'Regression', 'Clustering'], id='dataset_dropdown', placeholder='Dataset'),
-        dcc.Dropdown([''], id='algorithm_dropdown', placeholder='Algorithm'),
-        dcc.Dropdown([''], id='regression_method_dropdown', placeholder='Method'),
-        dcc.Dropdown([''], id='optimizer_dropdown', placeholder='Optimizer'),
+        dcc.Dropdown(['Classification', 'Regression', 'Clustering'], id='dataset_dropdown', placeholder='Dataset', className="dropdown"),
+        dcc.Dropdown([''], id='algorithm_dropdown', placeholder='Algorithm', className="dropdown"),
+        dcc.Dropdown([''], id='regression_method_dropdown', placeholder='Method', className="dropdown"),
+        dcc.Dropdown([''], id='optimizer_dropdown', placeholder='Optimizer', className="dropdown"),
         html.Div([
-            dcc.Dropdown([''], id='regularization_dropdown', placeholder='Regularization Type', className="inline"),
+            dcc.Dropdown([''], id='regularization_dropdown', placeholder='Regularization Type', className="inline dropdown"),
             dcc.Input('0.01', id="regularization_input", className="regularization_input"),
             ],
             className="input-group-append",
@@ -28,7 +28,14 @@ base_layout = html.Div(className="container", children=[
     ]),
 
     html.Div(className="Graphs", children=[
-        dcc.Graph(id='graph', figure=px.scatter().update_layout(template="plotly_dark")),
+        dcc.Tabs(id="graph-tabs", children=[
+            dcc.Tab(label="Primary Data", className="tabs", children=[
+                dcc.Graph(id='main-graph', figure=px.scatter().update_layout(template="plotly_dark")),
+            ]),
+            dcc.Tab(label="Residuals", className="tabs", children=[
+                dcc.Graph(id='residual-graph', figure=px.scatter().update_layout(template="plotly_dark")),
+            ]),
+        ]),
     ]),
 
     html.Div(className="Info", children=[
@@ -71,20 +78,32 @@ base_layout = html.Div(className="container", children=[
     html.Div(className="Data", children=[
         html.H4("Data", id="data-text", className="text-center"),
         dcc.Tabs(id="train-test-tabs", children=[
-            dcc.Tab(label="Train", className="tabs"),
-            dcc.Tab(label="Test", className="tabs"),
+            dcc.Tab(label="Train", className="tabs", children=[
+                dash_table.DataTable(
+                    id="train_table",
+                    style_table={'height': '155px', 'overflowY': 'auto'},
+                    style_header={'backgroundColor': '#343a40', 'fontWeight': 'bold', 'color': 'white'},
+                    style_cell={'backgroundColor': '#343a40', 'color': 'white'},
+                ),
+            ]),
+            dcc.Tab(label="Test", className="tabs", children=[
+                dash_table.DataTable(
+                    id="test_table",
+                    style_table={'height': '155px', 'overflowY': 'auto'},
+                    style_header={'backgroundColor': '#343a40', 'fontWeight': 'bold', 'color': 'white'},
+                    style_cell={'backgroundColor': '#343a40', 'color': 'white'},
+                ),
+            ]),
         ]),
-        dash_table.DataTable(
-            id="table",
-            style_table={'height': '155px', 'overflowY': 'auto'},
-        )
     ]),
 
     html.Div(className="Results", children=[
         html.H4("Results", id="results-text", className=""),
         dash_table.DataTable(
             id="results-table",
-            style_table={'width': '80%', 'max-width': '80%'}
+            style_table={'width': '80%', 'max-width': '80%'},
+            style_header={'backgroundColor': '#343a40', 'fontWeight': 'bold', 'color': 'white'},
+            style_cell={'backgroundColor': '#343a40', 'color': 'white'},
         )
     ]),
 

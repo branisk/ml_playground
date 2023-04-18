@@ -17,6 +17,44 @@ body {
   outline:2px solid black;
   outline-offset: -10px;
 }
+/* input box */
+.Select-control {
+    background-color: black;
+}
+
+/* changes the text color of input box */
+.Select-value-label {
+    color: white !important;
+}
+
+.Select--single > .Select-control .Select-value, .Select-placeholder {
+    border: 1px solid grey;
+    border-radius: 4px;
+}
+
+.dropdown .Select-control {
+    background-color: #343a40;
+    color: white;
+}
+
+.dropdown .Select-menu-outer {
+    background-color: #343a40;
+    color: white;
+}
+
+d.dropdown .Select-option.is-selected {
+background-color: #1E90FF;
+color: white;
+}
+
+.table {
+    color: white;
+}
+
+.table thead {
+    background-color: #343a40;
+    font-weight: bold;
+}
 
 a {
     color: lightgray;
