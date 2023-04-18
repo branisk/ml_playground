@@ -1,10 +1,10 @@
-Machine Learning Playground
-Overview
+#Machine Learning Playground
+##Overview
 
 Machine Learning Playground is an interactive web-based application designed to provide users with hands-on experience in various machine learning algorithms. The primary goal of this project is to allow users to gain a deeper understanding of how these algorithms work and to observe the impact of different parameters on the results.
 
 The application is built using Dash, a Python framework for building web applications, and Scikit-learn, a popular machine learning library.
-How it Works
+##How it Works
 
 Machine Learning Playground allows users to choose from a variety of datasets and machine learning algorithms. Users can then adjust parameters and see how the algorithm performs on the selected dataset. The application provides visualization of the data and the model's decision boundary, as well as performance metrics for the model.
 
