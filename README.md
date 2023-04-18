@@ -19,20 +19,30 @@ The supported machine learning algorithms include:
 To run the Machine Learning Playground, follow these steps:
 
 1. Clone the repository to your local machine:
-    git clone https://github.com/yourusername/machine-learning-playground.git
+    ```console
+    git clone https://github.com/branisk/ml_playground.git
+    ```
 
 2. Change to the project directory:
-    cd machine-learning-playground
+    ```console
+    cd ml_playground
+    ```
 
 3. Create a virtual environment and activate it:
+    ```console
     python -m venv venv
     source venv/bin/activate
+    ```
 
 4. Install the required packages:
+    ```console
     pip install -r requirements.txt
-
+    ```
+    
 5. Run the application:
+    ```console
     python app.py
+    ```
     
 6. Open your browser and navigate to http://127.0.0.1:8050/ to access the Machine Learning Playground.
 
