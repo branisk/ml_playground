@@ -41,7 +41,7 @@ To run the Machine Learning Playground, follow these steps:
     
 5. Run the application:
     ```console
-    python app.py
+    python index.py
     ```
     
 6. Open your browser and navigate to http://127.0.0.1:8050/ to access the Machine Learning Playground.
