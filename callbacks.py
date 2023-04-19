@@ -220,6 +220,6 @@ def update_info_layout(algorithm):
     elif algorithm == "Support Vector Classifier":
         return [values for values in soft_margin_svc.values()]
     elif algorithm == "Logistic Regression":
-        return 'None', 'None', 'None', 'None', None
+        return [values for values in logistic_regression.values()]
     elif algorithm == "Linear Regression":
         return [values for values in linear_regression.values()]

@@ -68,7 +68,8 @@ base_layout = html.Div(className="container", children=[
                         title="More Information",
                     )
                 ],
-                start_collapsed=True
+                start_collapsed=True,
+                id='info-accordion'  # Add this line
             ),
         ],
             className=""
@@ -81,7 +82,7 @@ base_layout = html.Div(className="container", children=[
             dcc.Tab(label="Train", className="tabs", children=[
                 dash_table.DataTable(
                     id="train_table",
-                    style_table={'height': '155px', 'overflowY': 'auto'},
+                    style_table={'height': '120px', 'overflowY': 'auto'},
                     style_header={'backgroundColor': '#343a40', 'fontWeight': 'bold', 'color': 'white'},
                     style_cell={'backgroundColor': '#343a40', 'color': 'white'},
                 ),
@@ -89,7 +90,7 @@ base_layout = html.Div(className="container", children=[
             dcc.Tab(label="Test", className="tabs", children=[
                 dash_table.DataTable(
                     id="test_table",
-                    style_table={'height': '155px', 'overflowY': 'auto'},
+                    style_table={'height': '120px', 'overflowY': 'auto'},
                     style_header={'backgroundColor': '#343a40', 'fontWeight': 'bold', 'color': 'white'},
                     style_cell={'backgroundColor': '#343a40', 'color': 'white'},
                 ),

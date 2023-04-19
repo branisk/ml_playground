@@ -42,9 +42,9 @@ body {
     color: white;
 }
 
-d.dropdown .Select-option.is-selected {
-background-color: #1E90FF;
-color: white;
+.dropdown .Select-option.is-selected {
+    background-color: #1E90FF;
+    color: white;
 }
 
 .table {

@@ -7,17 +7,18 @@ classification_metrics = ['Equation', 'Recall', 'Precision', 'F1 Score', 'Accura
 soft_margin_svc = {
     'summary': 'Find the optimal hyperplane which maximally separates two classes of data.',
     'mathjax': '\(\min \\frac{1}{2} ||w^{2}|| + C\sum{\max{(0,1-y_i(w^Tx_i+b))}}\)',
-    'assumptions': '1. The Data is Partially Separable\n \
-                    2. Misclassification is allowed within the margin to prevent overfitting, controlled by hyperparameter C',
+    'assumptions': '1. The dependent variable is 1 or -1\n \
+                    2. The Data is Partially Separable\n \
+                    3. Misclassification is allowed within the margin to prevent overfitting, controlled by hyperparameter C',
     'info-href': 'https://en.wikipedia.org/wiki/Support_vector_machine',
     'info-text': 'https://en.wikipedia.org/wiki/Support_vector_machine'
 }
 
 linear_regression = {
     'summary': 'Model the linear relationship between two variables by finding the line of best fit to the data',
-    'mathjax': '\(\min \\frac{1}{N} \sum{(ypred_i-y_i)^2}\)',
+    'mathjax': '\(\min\\beta: \\frac{1}{N} \sum{(y_i-(\\beta_0+\\beta_1x_i)^2}\)',
     'assumptions': '1. Linear relationship between variables\n \
-                    2. No correlation between error terms\n \
+                    2. Independent error terms\n \
                     3. Constant variance of errors\n \
                     4. Errors follow a normal distribution\n \
                     5. Independent variables are not highly correlated',
@@ -25,6 +26,18 @@ linear_regression = {
     'info-text': 'https://en.wikipedia.org/wiki/Linear_regression'
 }
 
+logistic_regression = {
+    'summary': 'Model the probability of a binary outcome (0 or 1) based on one or more predictor variables',
+    'mathjax': '\(\max\\beta: \sum{[y_i\cdot log(p_i)+(1-y_i)\cdot log(1-p_i)]}\) Where \(p_i=\\frac{1}{1+e^{-(\\beta_1x_i+\\beta_0)}} \)',
+    'assumptions': '1. The dependent variable is 0 or 1\n \
+                    2. Independent observations\n \
+                    3. Linear relationship between predictors\n \
+                    4. Large sample size\n \
+                    5. Independent variables are not highly correlated',
+    'info-href': 'https://en.wikipedia.org/wiki/Logistic_regression',
+    'info-text': 'https://en.wikipedia.org/wiki/Logstic_regression'
+
+}
 
 #  Regression Metrics
 #  Return a value between 0 and 1, a larger value represents a greater fit
