@@ -10,6 +10,7 @@ soft_margin_svc = {
     'assumptions': '1. The dependent variable is 1 or -1\n \
                     2. The Data is Partially Separable\n \
                     3. Misclassification is allowed within the margin to prevent overfitting, controlled by hyperparameter C',
+    'complexity': '\(Train: O(n^2)\\\Test: O(n*m) \\\Space: O(n*m)\)',
     'info-href': 'https://en.wikipedia.org/wiki/Support_vector_machine',
     'info-text': 'https://en.wikipedia.org/wiki/Support_vector_machine'
 }
@@ -22,6 +23,7 @@ linear_regression = {
                     3. Constant variance of errors\n \
                     4. Errors follow a normal distribution\n \
                     5. Independent variables are not highly correlated',
+    'complexity': '\(Train: O(n*m^2+m^3)\\\Test: O(m) \\\Space: O(m)\)',
     'info-href': 'https://en.wikipedia.org/wiki/Linear_regression',
     'info-text': 'https://en.wikipedia.org/wiki/Linear_regression'
 }
@@ -34,6 +36,7 @@ logistic_regression = {
                     3. Linear relationship between predictors\n \
                     4. Large sample size\n \
                     5. Independent variables are not highly correlated',
+    'complexity': '\(Train: O(n*m)\\\Test: O(m) \\\Space: O(m)\)',
     'info-href': 'https://en.wikipedia.org/wiki/Logistic_regression',
     'info-text': 'https://en.wikipedia.org/wiki/Logstic_regression'
 

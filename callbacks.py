@@ -15,6 +15,7 @@ model = None
     Output('main-graph', 'figure'),
     Output('fig-store', 'data'),
     Output('data-store', 'data'),
+    Output('residual-graph', 'figure'),
     Input('button', 'n_clicks'),
     Input('dataset_dropdown', 'value'),
     State('fig-store', 'data'),
@@ -29,13 +30,13 @@ def update_results(button, dataset, fig, data):
         case 'dataset_dropdown':
             if dataset == "Classification":
                 fig, data = gather_classification()
-                return fig, fig.to_dict(), data.tolist()
+                return fig, fig.to_dict(), data.tolist(), None
             elif dataset == "Regression":
                 fig, data = gather_regression()
-                return fig, fig.to_dict(), data.tolist()
+                return fig, fig.to_dict(), data.tolist(), None
             elif dataset == "Clustering":
                 fig, data = None, None
-                return fig, fig, data
+                return fig, fig, data, None
 
         case 'button':
             data = np.array(data)
@@ -51,14 +52,24 @@ def update_results(button, dataset, fig, data):
             X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
             # Fit the model on the train set
-            fit_fig = model.fit(X_train, Y_train)
+            model.fit(X_train, Y_train)
 
             # Update the results using the test set
             model.update_results(X_test, Y_test)
 
-            fw = go.FigureWidget(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
+            if dataset == "Regression":
+                fit_fig = model.plot_best_fit(X, X_test, Y_test)
+                fw = go.FigureWidget(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
 
-            return fw, fig, data
+                res = model.plot_residuals(X_test, Y_test)
+                resfw = go.Figure(data=res['data'], layout=fig['layout'])
+            elif dataset == "Classification":
+                fit_fig = model.plot_hyperplane(X)
+                fw = go.Figure(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
+
+                resfw = None
+
+            return fw, fig, data, resfw
 
 @app.callback(
     Output('algorithm_dropdown', 'options'),
@@ -88,10 +99,6 @@ def update_algorithms(value):
     prevent_initial_call=True
 )
 def update_data(dataset, data, algorithm):
-    X = data[0]
-    Y = data[1]
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
-
     if dataset == "Classification":
         col1 = [row[0] for row in data]
         col2 = [row[1] for row in data]
@@ -209,6 +216,7 @@ def update_results_layout(value, button):
     Output('summary-text', 'children'),
     Output('objective-text', 'children'),
     Output('assumptions-text', 'children'),
+    Output('complexity-text', 'children'),
     Output('info-text', 'children'),
     Output('info-text', 'href'),
     Input('algorithm_dropdown', 'value'),
@@ -216,7 +224,7 @@ def update_results_layout(value, button):
 )
 def update_info_layout(algorithm):
     if not algorithm:
-        return 'None', 'None', 'None', 'None', None
+        return 'None', 'None', 'None', 'None', 'None', None
     elif algorithm == "Support Vector Classifier":
         return [values for values in soft_margin_svc.values()]
     elif algorithm == "Logistic Regression":

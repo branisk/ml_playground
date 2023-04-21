@@ -29,17 +29,45 @@ class LinearRegression:
         self.weights[1] = (n*sxy - sx*sy) / (n*sxx - sx*sx)
         self.weights[0] = (sy/n - self.weights[1]*sx/n)
 
-        fig = self._plot_best_fit(X)
+    def plot_best_fit(self, X, X_test, Y_test):
+        Y_pred = self.predict(X_test)
+        residuals = Y_test.T[0] - Y_pred
 
-        return fig
-
-    def _plot_best_fit(self, X):
         fig = px.scatter()
         x_vals = np.linspace(np.min(X), np.max(X), 100)
         y_vals = (x_vals * self.weights[1]) + self.weights[0]
-        fig.add_trace(px.line(x=x_vals, y=y_vals, color_discrete_sequence=['red']).data[0])
+        line = px.line(x=x_vals, y=y_vals, color_discrete_sequence=['red'])
+        line.data[0]['showlegend'] = True
+        line.data[0]['name'] = 'Best Fit'
+
+        fig.add_trace(line.data[0])
+
+        # Add predicted points and dotted lines
+        for i in range(len(X_test)):
+            x_test = X_test[i]
+            y_test = Y_test[i]
+            y_pred = Y_pred[i]
+            residual = residuals[i]
+
+            if i == 0:
+                scatter = go.Scatter(x=[x_test, x_test], y=[y_test, y_pred], mode='lines', name='Residuals', legendgroup='1', line=dict(color='white', dash='dash'), showlegend=True, hovertemplate=f"Residual: {residual:.5f}<extra></extra>")
+            else:
+                scatter = go.Scatter(x=[x_test, x_test], y=[y_test, y_pred], mode='lines', legendgroup='1', line=dict(color='white', dash='dash'), showlegend=False, hovertemplate=f"Residual: {residual:.5f}<extra></extra>")
+
+            fig.add_trace(scatter)
+
+        fig.data[0]['showlegend'] = True
+        fig.data[0]['name'] = 'Residuals'
 
         return fig
+
+    def plot_residuals(self, X, Y):
+        Y_pred = self.predict(X)
+        residuals = Y.T[0] - Y_pred
+
+        scatter = px.scatter(x=list(range(len(residuals))), y=residuals)
+
+        return scatter
 
     def update_results(self, X, Y):
         Y_pred = self.predict(X)
@@ -127,10 +155,6 @@ class SupportVectorClassifier:
             elif self.optimizer == "Newton's Method":
                 self._newton_step(X, Y)
 
-        fig = self._plot_hyperplane(X)
-
-        return fig
-
     def _sgd_step(self, X, Y):
         w_grad = np.zeros_like(self.W)
         b_grad = 0
@@ -187,7 +211,7 @@ class SupportVectorClassifier:
         self.b -= newton_direction[0]
         self.W -= newton_direction[1:]
 
-    def _plot_hyperplane(self, X):
+    def plot_hyperplane(self, X):
         # Plot the hyperplane
         fig = px.scatter()
         x_vals = np.linspace(np.min(X[:, 0]), np.max(X[:, 0]), 100)
@@ -233,6 +257,8 @@ class SupportVectorClassifier:
             str(round(f1_score(Y_pred, Y.T[0])*100, 2)) + "%",
             str(round(accuracy(Y_pred, Y.T[0])*100, 2)) + "%"
         ]
+
+        return
 
     def predict(self, X):
         return np.array([1 if np.dot(self.W, x_i) + self.b >= 0 else -1 for x_i in X])

@@ -64,6 +64,10 @@ a {
     font-size: 9px;
 }
 
+#classification_dropdown {
+  display: none;
+}
+
 #regularization_dropdown {
     width: 80% !important;
     position: inline-block !important;

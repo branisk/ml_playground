@@ -14,6 +14,7 @@ base_layout = html.Div(className="container", children=[
 
     html.Div(className="Options center", style={"width": "80%"}, children=[
         dcc.Dropdown(['Classification', 'Regression', 'Clustering'], id='dataset_dropdown', placeholder='Dataset', className="dropdown"),
+        dcc.Dropdown([''], id='classification_dropdown', placeholder='Dataset', className="dropdown"),
         dcc.Dropdown([''], id='algorithm_dropdown', placeholder='Algorithm', className="dropdown"),
         dcc.Dropdown([''], id='regression_method_dropdown', placeholder='Method', className="dropdown"),
         dcc.Dropdown([''], id='optimizer_dropdown', placeholder='Optimizer', className="dropdown"),
@@ -30,10 +31,13 @@ base_layout = html.Div(className="container", children=[
     html.Div(className="Graphs", children=[
         dcc.Tabs(id="graph-tabs", children=[
             dcc.Tab(label="Primary Data", className="tabs", children=[
-                dcc.Graph(id='main-graph', figure=px.scatter().update_layout(template="plotly_dark")),
+                dcc.Graph(id='main-graph', figure=px.scatter().update_layout(template="plotly_dark", margin=dict(l=50, r=30, t=30, b=50), xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=False, zeroline=False))),
             ]),
             dcc.Tab(label="Residuals", className="tabs", children=[
                 dcc.Graph(id='residual-graph', figure=px.scatter().update_layout(template="plotly_dark")),
+            ]),
+            dcc.Tab(label="Bias-Variance", className="tabs", children=[
+                dcc.Graph(id='bias-variance-graph', figure=px.scatter().update_layout(template="plotly_dark")),
             ]),
         ]),
     ]),
@@ -54,6 +58,13 @@ base_layout = html.Div(className="container", children=[
                             html.P("Please choose an algorithm.", id="objective-text", className='accordion-text')
                         ],
                         title="Objective",
+                    ),
+                    dbc.AccordionItem(
+                        id="complexity",
+                        children=[
+                            html.P("Please choose an algorithm.", id="complexity-text", className='accordion-text')
+                        ],
+                        title="Complexity",
                     ),
                     dbc.AccordionItem(
                         [
