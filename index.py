@@ -4,4 +4,4 @@ from layouts import (
 from callbacks import *
 
 app.layout = base_layout
-app.run_server(debug=True, port=8050)
+app.run_server(debug=False, port=8050)
