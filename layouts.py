@@ -36,8 +36,8 @@ base_layout = html.Div(className="container", children=[
             dcc.Tab(label="Residuals", className="tabs", children=[
                 dcc.Graph(id='residual-graph', figure=px.scatter().update_layout(template="plotly_dark")),
             ]),
-            dcc.Tab(label="Bias-Variance", className="tabs", children=[
-                dcc.Graph(id='bias-variance-graph', figure=px.scatter().update_layout(template="plotly_dark")),
+            dcc.Tab(label="Gaussian Likelihood", className="tabs", children=[
+                dcc.Graph(id='gaussian-likelihood-graph', figure=px.scatter().update_layout(template="plotly_dark")),
             ]),
         ]),
     ]),

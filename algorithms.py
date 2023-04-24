@@ -10,24 +10,39 @@ class LinearRegression:
             self,
             n_features=1,
             max_iterations=1,
-            optimizer="OLS"
+            method="OLS"
     ):
         self.max_iter = max_iterations
-        self.optimizer = optimizer
+        self.method = method
         self.weights = np.zeros(n_features + 1)  # Weight term
         self.results = [None] * 5
 
     def fit(self, X, Y):
+        '''
+        Projection Matrix P = X * (X.T*X)**(-1) * X.T
+        Annihilator Matrix M = I_n - P
+        residuals = M * Y
+        '''
         n = len(X)
 
-        sx = np.sum(X)
-        sy = np.sum(Y)
-        sxx = np.dot(X.T, X)
-        syy = np.dot(Y.T, Y)
-        sxy = np.dot(X.T, Y)
+        if self.method == "OLS":
+            sx = np.sum(X)
+            sy = np.sum(Y)
+            sxx = np.dot(X.T, X)
+            syy = np.dot(Y.T, Y)
+            sxy = np.dot(X.T, Y)
 
-        self.weights[1] = (n*sxy - sx*sy) / (n*sxx - sx*sx)
-        self.weights[0] = (sy/n - self.weights[1]*sx/n)
+            self.weights[1] = (n*sxy - sx*sy) / (n*sxx - sx*sx)
+            self.weights[0] = (sy/n - self.weights[1]*sx/n)
+        elif self.method == "MLE":
+            print("MLE")
+            # Add a column of ones to the X matrix to include the intercept term
+            X_augmented = np.column_stack((np.ones(n), X))
+
+            # MLE estimation for linear regression with Gaussian likelihood is equivalent to OLS
+            self.weights = np.linalg.inv(X_augmented.T @ X_augmented) @ X_augmented.T @ Y
+        else:
+            print("No method chosen.")
 
     def plot_best_fit(self, X, X_test, Y_test):
         Y_pred = self.predict(X_test)
@@ -65,7 +80,25 @@ class LinearRegression:
         Y_pred = self.predict(X)
         residuals = Y.T[0] - Y_pred
 
-        scatter = px.scatter(x=list(range(len(residuals))), y=residuals)
+        scatter = px.scatter(x=list(range(len(residuals))), y=residuals, title='Residuals Plot')
+
+        return scatter
+
+    def plot_gaussian_likelihood(self, X, Y):
+        Y_pred = self.predict(X)
+        residuals = Y.T[0] - Y_pred
+
+        # Estimate Gaussian likelihood parameters
+        mu = np.mean(residuals)
+        sigma = np.std(residuals)
+
+        # Create a range of values for the likelihood function
+        x_values = np.linspace(-3*sigma, 3*sigma, 100)
+
+        # Calculate the Gaussian likelihood
+        likelihood = (1 / (np.sqrt(2 * np.pi * sigma**2))) * np.exp(-(x_values - mu)**2 / (2 * sigma**2))
+
+        scatter = px.scatter(x=x_values, y=likelihood)
 
         return scatter
 
@@ -76,7 +109,9 @@ class LinearRegression:
             str(round(r2_score(Y_pred, Y)*100, 2)) + "%",
             round(rmse(Y_pred, Y), 5),
             round(mse(Y_pred, Y), 5),
-            round(mae(Y_pred, Y), 5)
+            round(mae(Y_pred, Y), 5),
+            round(reduced_chi_squared(Y_pred, Y), 5),
+            round(rse(Y_pred, Y), 5),
         ]
 
     def predict(self, X):

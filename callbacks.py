@@ -16,6 +16,7 @@ model = None
     Output('fig-store', 'data'),
     Output('data-store', 'data'),
     Output('residual-graph', 'figure'),
+    Output('gaussian-likelihood-graph', 'figure'),
     Input('button', 'n_clicks'),
     Input('dataset_dropdown', 'value'),
     State('fig-store', 'data'),
@@ -30,13 +31,13 @@ def update_results(button, dataset, fig, data):
         case 'dataset_dropdown':
             if dataset == "Classification":
                 fig, data = gather_classification()
-                return fig, fig.to_dict(), data.tolist(), None
+                return fig, fig.to_dict(), data.tolist(), None, None
             elif dataset == "Regression":
                 fig, data = gather_regression()
-                return fig, fig.to_dict(), data.tolist(), None
+                return fig, fig.to_dict(), data.tolist(), None, None
             elif dataset == "Clustering":
                 fig, data = None, None
-                return fig, fig, data, None
+                return fig, fig, data, None, None
 
         case 'button':
             data = np.array(data)
@@ -63,13 +64,32 @@ def update_results(button, dataset, fig, data):
 
                 res = model.plot_residuals(X_test, Y_test)
                 resfw = go.Figure(data=res['data'], layout=fig['layout'])
+                resfw.layout.update(dict(title="Residuals <br><sup>The difference between the actual y value and the predicted y values</sup>",
+                    xaxis_title="Index",
+                    yaxis_title="Residual"
+
+                ))
+                lh = model.plot_gaussian_likelihood(X_test, Y_test)
+                lhfw = go.Figure(data=lh['data'], layout=fig['layout'])
+                lhfw.layout.update(dict(
+                    title="Maximum Gaussian Likelihood <br><sup>The distribution of the residuals, assumed to be normal</sup>",
+                    xaxis_title="Residual Values",
+                    yaxis_title="Likelihood"
+
+                ))
+
             elif dataset == "Classification":
                 fit_fig = model.plot_hyperplane(X)
                 fw = go.Figure(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
 
                 resfw = None
+                lhfw = None
+            elif dataset == "Clustering":
+                fw = None
+                resfw = None
+                lhfw = None
 
-            return fw, fig, data, resfw
+            return fw, fig, data, resfw, lhfw
 
 @app.callback(
     Output('algorithm_dropdown', 'options'),
@@ -151,8 +171,8 @@ def update_layout(value, data):
 
     elif value == "Linear Regression":
         model = LinearRegression()
-        return ['', ""], [""], None, {}, \
-            {}, {}, {'display': 'block'}, ["OLS"]
+        return ['', ''], [''], None, {}, \
+            {}, {}, {'display': 'block'}, ['OLS', 'MLE']
 
 
 @app.callback(
@@ -160,9 +180,10 @@ def update_layout(value, data):
     Input('optimizer_dropdown', 'value'),
     Input('regularization_dropdown', 'value'),
     Input('regularization_input', 'value'),
+    Input('regression_method_dropdown', 'value'),
     prevent_initial_call=True
 )
-def update_values(optimizer, regularization_type, regularization_value):
+def update_hyperparameters(optimizer, regularization_type, regularization_value, method):
     global model
 
     if model is None:
@@ -176,7 +197,8 @@ def update_values(optimizer, regularization_type, regularization_value):
             model.regularization_type = regularization_type
         case 'regularization_value':
             model.C = float(regularization_value)
-
+        case 'regression_method_dropdown':
+            model.method = method
 
 @app.callback(
     Output('results-table', 'columns'),
