@@ -7,8 +7,14 @@ from app import app
 from datasets import *
 from metrics import *
 
-global model
-model = None
+import pickle
+import base64
+
+def serialize_model(model):
+    return base64.b64encode(pickle.dumps(model)).decode('utf-8')
+
+def deserialize_model(model_data):
+    return pickle.loads(base64.b64decode(model_data.encode('utf-8')))
 
 
 @app.callback(
@@ -17,27 +23,35 @@ model = None
     Output('data-store', 'data'),
     Output('residual-graph', 'figure'),
     Output('gaussian-likelihood-graph', 'figure'),
+    Output('model-store', 'data'),
     Input('button', 'n_clicks'),
     Input('dataset_dropdown', 'value'),
+    Input('algorithm_dropdown', 'value'),
     State('fig-store', 'data'),
     State('data-store', 'data'),
+    State('model-store', 'data'),
     prevent_initial_call=True
 )
-def update_results(button, dataset, fig, data):
-    global model
-
+def update_results(button, dataset, algorithm, fig, data, model_data):
     #  Cases based on which component triggered the callback
     match dash.callback_context.triggered_id:
-        case 'dataset_dropdown':
-            if dataset == "Classification":
-                fig, data = gather_classification()
-                return fig, fig.to_dict(), data.tolist(), None, None
-            elif dataset == "Regression":
-                fig, data = gather_regression()
-                return fig, fig.to_dict(), data.tolist(), None, None
-            elif dataset == "Clustering":
-                fig, data = None, None
-                return fig, fig, data, None, None
+        case 'dataset_dropdown' | 'algorithm_dropdown':
+            if not algorithm:
+                if dataset == "Classification":
+                    fig, data = gather_classification()
+                elif dataset == "Regression":
+                    fig, data = gather_regression()
+                elif dataset == "Clustering":
+                    fig, data = None, None
+                return fig, fig.to_dict(), data.tolist(), None, None, None
+            else:
+                if algorithm == "Support Vector Classifier":
+                    model = SupportVectorClassifier()
+                elif algorithm == "Logistic Regression":
+                    model = LogisticRegression()
+                elif algorithm == "Linear Regression":
+                    model = LinearRegression()
+                return fig, fig, data, {}, {}, serialize_model(model)
 
         case 'button':
             data = np.array(data)
@@ -51,6 +65,11 @@ def update_results(button, dataset, fig, data):
 
             # Split the data into train and test sets
             X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+
+            if model_data:
+                model = deserialize_model(model_data)
+            else:
+                model = None
 
             # Fit the model on the train set
             model.fit(X_train, Y_train)
@@ -89,7 +108,7 @@ def update_results(button, dataset, fig, data):
                 resfw = None
                 lhfw = None
 
-            return fw, fig, data, resfw, lhfw
+            return fw, fig, data, resfw, lhfw, serialize_model(model)
 
 @app.callback(
     Output('algorithm_dropdown', 'options'),
@@ -116,9 +135,15 @@ def update_algorithms(value):
     Input('dataset_dropdown', 'value'),
     Input('data-store', 'data'),
     Input('algorithm_dropdown', 'value'),
+    State('model-store', 'data'),
     prevent_initial_call=True
 )
-def update_data(dataset, data, algorithm):
+def update_data(dataset, data, algorithm, model_data):
+    if model_data:
+        model = deserialize_model(model_data)
+    else:
+        model = None
+
     if dataset == "Classification":
         col1 = [row[0] for row in data]
         col2 = [row[1] for row in data]
@@ -150,27 +175,24 @@ def update_data(dataset, data, algorithm):
     Output('regression_method_dropdown', 'options'),
     Input('algorithm_dropdown', 'value'),
     State('data-store', 'data'),
+    State('model-store', 'data'),
     prevent_initial_call=True
 )
-def update_layout(value, data):
-    global model
-
+def update_layout(value, data, model_data):
     if not value:
         return [], [], None, {}, {}, {}, {}, []
 
     elif value == "Support Vector Classifier":
-        model = SupportVectorClassifier()
         return ['Sub-Gradient Descent', "Newton's Method"],\
             ["Lasso (L1)", 'Ridge (L2)'], 0.01, {'display': 'block'}, \
             {'display': 'block'}, {'display': 'block'}, {}, []
 
     elif value == "Logistic Regression":
-        model = LogisticRegression()
-        return ['Sub-Gradient Descent'], ['Lasso (L1)'], 0.01, {'display': 'block'}, \
+        return ['Sub-Gradient Descent'], \
+            ['Lasso (L1)'], 0.01, {'display': 'block'}, \
             {'display': 'block'}, {'display': 'block'}, {}, []
 
     elif value == "Linear Regression":
-        model = LinearRegression()
         return ['', ''], [''], None, {}, \
             {}, {}, {'display': 'block'}, ['OLS', 'MLE']
 
@@ -181,12 +203,13 @@ def update_layout(value, data):
     Input('regularization_dropdown', 'value'),
     Input('regularization_input', 'value'),
     Input('regression_method_dropdown', 'value'),
+    State('model-store', 'data'),
     prevent_initial_call=True
 )
-def update_hyperparameters(optimizer, regularization_type, regularization_value, method):
-    global model
-
-    if model is None:
+def update_hyperparameters(optimizer, regularization_type, regularization_value, method, model_data):
+    if model_data:
+        model = deserialize_model(model_data)
+    else:
         return
 
     #  Cases based on which component triggered the callback
@@ -205,16 +228,20 @@ def update_hyperparameters(optimizer, regularization_type, regularization_value,
     Output('results-table', 'data'),
     Input('dataset_dropdown', 'value'),
     Input('button', 'n_clicks'),
+    State('model-store', 'data'),
     prevent_initial_call=True
 )
-def update_results_layout(value, button):
-    global model
+def update_results_layout(value, button, model_data):
+    if model_data:
+        model = deserialize_model(model_data)
+    else:
+        model = None
 
     if not value:
-        return [None] * 5
+        return [None] * 2
 
     if model is None:
-        results = [None] * 5
+        return [None] * 2
     else:
         results = model.results
 
