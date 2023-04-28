@@ -24,6 +24,7 @@ def deserialize_model(model_data):
     Output('residual-graph', 'figure'),
     Output('gaussian-likelihood-graph', 'figure'),
     Output('model-store', 'data'),
+    Output('results-store', 'data'),
     Input('button', 'n_clicks'),
     Input('dataset_dropdown', 'value'),
     Input('algorithm_dropdown', 'value'),
@@ -36,22 +37,28 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
     #  Cases based on which component triggered the callback
     match dash.callback_context.triggered_id:
         case 'dataset_dropdown' | 'algorithm_dropdown':
-            if not algorithm:
+            if not algorithm: # The callback is for the dataset
                 if dataset == "Classification":
                     fig, data = gather_classification()
                 elif dataset == "Regression":
                     fig, data = gather_regression()
                 elif dataset == "Clustering":
                     fig, data = None, None
-                return fig, fig.to_dict(), data.tolist(), None, None, None
-            else:
+                elif dataset == "Dimensionality Reduction":
+                    fig, data = gather_dimensionalityreduction()
+                return fig.to_dict(), fig.to_dict(), data.values.tolist(), None, None, None, None
+            else: # The callback is for the algorithm, so intiialize the algorithm
                 if algorithm == "Support Vector Classifier":
                     model = SupportVectorClassifier()
                 elif algorithm == "Logistic Regression":
                     model = LogisticRegression()
                 elif algorithm == "Linear Regression":
                     model = LinearRegression()
-                return fig, fig, data, {}, {}, serialize_model(model)
+                elif algorithm == "PCA":
+                    model = PCA()
+                elif algorithm == "OrthogonalProjection":
+                    model = OrthogonalProjection()
+                return fig, fig, data, {}, {}, serialize_model(model), None
 
         case 'button':
             data = np.array(data)
@@ -66,16 +73,16 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
             # Split the data into train and test sets
             X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
-            if model_data:
+            if model_data and dataset != "Dimensionality Reduction":
                 model = deserialize_model(model_data)
+
+                # Fit the model on the train set
+                model.fit(X_train, Y_train)
+
+                # Update the results using the test set
+                model.update_results(X_test, Y_test)
             else:
                 model = None
-
-            # Fit the model on the train set
-            model.fit(X_train, Y_train)
-
-            # Update the results using the test set
-            model.update_results(X_test, Y_test)
 
             if dataset == "Regression":
                 fit_fig = model.plot_best_fit(X, X_test, Y_test)
@@ -96,7 +103,6 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
                     yaxis_title="Likelihood"
 
                 ))
-
             elif dataset == "Classification":
                 fit_fig = model.plot_hyperplane(X)
                 fw = go.Figure(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
@@ -107,8 +113,16 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
                 fw = None
                 resfw = None
                 lhfw = None
+            elif dataset == "Dimensionality Reduction":
+                model = deserialize_model(model_data)
+                # Fit the model on the train set
+                model.fit(data)
+                fit_fig = model.plot(data)
+                fw = go.Figure(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
+                resfw = None
+                lhfw = None
 
-            return fw, fig, data, resfw, lhfw, serialize_model(model)
+            return fw, fig, data, resfw, lhfw, serialize_model(model), True
 
 @app.callback(
     Output('algorithm_dropdown', 'options'),
@@ -127,6 +141,8 @@ def update_algorithms(value):
         return ['Linear Regression'], {'display': 'block'}, {'display': 'inline-block'}
     elif value == "Clustering":
         return ['KNearestNeighbors'], {'display': 'block'}, {'display': 'inline-block'}
+    elif value == "Dimensionality Reduction":
+        return ['OrthogonalProjection', 'PCA', 'SVD', 'LDA'], {'display': 'block'}, {'display': 'inline-block'}
 
 
 @app.callback(
@@ -143,6 +159,9 @@ def update_data(dataset, data, algorithm, model_data):
         model = deserialize_model(model_data)
     else:
         model = None
+
+    df = pd.DataFrame(data)
+    print(df)
 
     if dataset == "Classification":
         col1 = [row[0] for row in data]
@@ -162,7 +181,8 @@ def update_data(dataset, data, algorithm, model_data):
         ], None
     elif dataset == "Clustering":
         return
-
+    elif dataset == "Dimensionality Reduction":
+        return df.round({0: 2, 1: 2, 2: 3}).rename(columns={0: 'X', 1: 'Y', 2: 'Z'}).reset_index().to_dict('records'), None
 
 @app.callback(
     Output('optimizer_dropdown', 'options'),
@@ -196,6 +216,12 @@ def update_layout(value, data, model_data):
         return ['', ''], [''], None, {}, \
             {}, {}, {'display': 'block'}, ['OLS', 'MLE']
 
+    elif value == "KMeans":
+        return [], [], None, {}, {}, {}, {}, []
+
+    elif value == "PCA" or "OrthogonalProjection":
+        return [], [], None, {}, {}, {}, {}, []
+
 
 @app.callback(
     Output('none', 'style'),
@@ -227,23 +253,20 @@ def update_hyperparameters(optimizer, regularization_type, regularization_value,
     Output('results-table', 'columns'),
     Output('results-table', 'data'),
     Input('dataset_dropdown', 'value'),
-    Input('button', 'n_clicks'),
+    Input('results-store', 'data'),
     State('model-store', 'data'),
     prevent_initial_call=True
 )
-def update_results_layout(value, button, model_data):
+def update_results_layout(value, results, model_data):
     if model_data:
         model = deserialize_model(model_data)
     else:
         model = None
 
-    if not value:
+    if not value or model is None or results is None:
         return [None] * 2
 
-    if model is None:
-        return [None] * 2
-    else:
-        results = model.results
+    results = model.results
 
     if value == "Classification":
         columns = [{'id': 'metric', 'name': '', 'editable': False},
@@ -259,6 +282,9 @@ def update_results_layout(value, button, model_data):
 
     elif value == "Clustering":
         return [None] * 5
+
+    elif value == "Dimensionality Reduction" or "OrthogonalProjection":
+        return [None] * 2
 
 
 @app.callback(
@@ -280,3 +306,5 @@ def update_info_layout(algorithm):
         return [values for values in logistic_regression.values()]
     elif algorithm == "Linear Regression":
         return [values for values in linear_regression.values()]
+    elif algorithm == "PCA" or "OrthogonalProjection":
+        return 'None', 'None', 'None', 'None', 'None', None

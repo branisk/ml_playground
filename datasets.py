@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.datasets import make_blobs, make_regression
@@ -119,5 +120,38 @@ def gather_clustering():
     )
 
     data = np.hstack((X, Y.reshape(-1, 1)))
+
+    return fig, data
+
+def gather_dimensionalityreduction():
+    X, Y = make_regression(n_samples=50, n_features=3, effective_rank=.1, random_state=42)
+    data = pd.DataFrame(X, columns=['X', 'Y', 'Z'])
+    data = data - data.min()
+
+    fig = go.FigureWidget()
+
+    scatter1 = px.scatter_3d(
+        data,
+        x='X',
+        y='Y',
+        z='Z'
+    )
+    scatter1.data[0]['showlegend'] = True
+    scatter1.data[0]['name'] = '3D'
+
+    fig.add_traces(scatter1.data)
+
+    fig.update_layout(
+        title='Dimensionality Reduction',
+        template="plotly_dark",
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01,
+            font=dict(size=10),
+        ),
+        margin=dict(l=0, r=20, t=50, b=20)
+    )
 
     return fig, data

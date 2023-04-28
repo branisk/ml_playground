@@ -7,13 +7,14 @@ base_layout = html.Div(className="container", children=[
     dcc.Store(id='fig-store'),
     dcc.Store(id='data-store'),
     dcc.Store(id='model-store'),
+    dcc.Store(id='results-store'),
 
     html.Div(className="Title center", children=[
         html.H1("Machine Learning from Scratch", className="title-text")
     ]),
 
     html.Div(className="Options center", style={"width": "80%"}, children=[
-        dcc.Dropdown(['Classification', 'Regression', 'Clustering'], id='dataset_dropdown', placeholder='Dataset', className="dropdown"),
+        dcc.Dropdown(['Classification', 'Regression', 'Clustering', 'Dimensionality Reduction'], id='dataset_dropdown', placeholder='Dataset', className="dropdown"),
         dcc.Dropdown([''], id='classification_dropdown', placeholder='Dataset', className="dropdown"),
         dcc.Dropdown([''], id='algorithm_dropdown', placeholder='Algorithm', className="dropdown"),
         dcc.Dropdown([''], id='regression_method_dropdown', placeholder='Method', className="dropdown"),
