@@ -13,6 +13,9 @@ The supported machine learning algorithms include:
     Support Vector Classifier
     Logistic Regression
     Linear Regression
+    KMeans
+    Orthogonal Projections
+    Principle Component Analysis
 
 ## Running the Application
 
