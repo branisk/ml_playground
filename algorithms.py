@@ -301,7 +301,209 @@ class SupportVectorClassifier:
 
 #  Clustering Algorithms
 class KMeans:
-    def __init__(
-            self
-    ):
-        return
+    def __init__(self, n_clusters=5, max_iterations=1, random_state=None):
+        self.n_clusters = n_clusters
+        self.max_iterations = max_iterations
+        self.random_state = random_state
+        self.centroids = None
+        self.results = None
+
+    def _initialize_centroids(self, X):
+        rng = np.random.default_rng(self.random_state)
+        centroid_indices = rng.choice(X.shape[0], size=self.n_clusters, replace=False)
+        self.centroids = X[centroid_indices]
+
+    def _assign_clusters(self, X):
+        distances = np.linalg.norm(X[:, np.newaxis] - self.centroids, axis=2)
+        return np.argmin(distances, axis=1)
+
+    def _update_centroids(self, X, labels):
+        new_centroids = np.array([X[labels == i].mean(axis=0) for i in range(self.n_clusters)])
+        return new_centroids
+
+    def fit(self, X, Y):
+        if self.centroids is None:
+            self._initialize_centroids(X)
+            prev_centroids = None
+        else:
+            prev_centroids = self.centroids
+
+        for _ in range(self.max_iterations):
+            labels = self._assign_clusters(X)
+            new_centroids = self._update_centroids(X, labels)
+
+            if np.array_equal(new_centroids, prev_centroids):
+                print("Cannot improve, stopping")
+                break
+
+            prev_centroids = new_centroids
+            self.centroids = new_centroids
+
+        return self
+
+    def plot_centroids(self, X, Y):
+        if self.centroids is not None:
+            labels = self._assign_clusters(X)
+
+            # Create a scatter plot for each cluster
+            scatter_list = []
+            for cluster in range(self.n_clusters):
+                indices = np.where(labels == cluster)[0]
+                scatter_list.append(go.Scatter(
+                    x=X[indices, 0], y=X[indices, 1], mode='markers',
+                    name=f"Cluster {cluster}",
+                    marker=dict(size=6, color=px.colors.qualitative.Plotly[cluster])
+                ))
+                scatter_list.append(self.plot_ellipses(X[indices], cluster))
+
+            # Add the centroids to the scatter list
+            scatter1 = go.Scatter(x=self.centroids[:, 0], y=self.centroids[:, 1],
+                                  mode='markers',
+                                  name='Centroids',
+                                  marker=dict(color='rgba(255, 0, 0, 0.8)',
+                                              line=dict(color='rgba(255, 255, 255, 1)', width=2),
+                                              size=10))
+            scatter_list.append(scatter1)
+
+            fig = go.Figure(data=scatter_list)
+
+            # Update the layout for a more professional appearance
+            fig.update_layout(
+                title="K-means Clustering",
+                title_x=0.5,
+                xaxis_title="X-axis",
+                yaxis_title="Y-axis",
+                font=dict(size=14),
+                plot_bgcolor="white",
+                xaxis=dict(gridcolor='rgba(180, 180, 180, 0.3)'),
+                yaxis=dict(gridcolor='rgba(180, 180, 180, 0.3)')
+            )
+
+            return fig
+        else:
+            print("Centroids have not been computed yet.")
+
+    def update_results(self, X, Y):
+        pass
+
+    def predict(self, X):
+        return self._assign_clusters(X)
+
+    def fit_predict(self, X, Y):
+        self.fit(X)
+        return self.predict(X)
+
+    def plot_ellipses(self, X, cluster):
+        if len(X) < 2:
+            return go.Scatter()
+
+        cov = np.cov(X.T)
+        eigvals, eigvecs = np.linalg.eig(cov)
+        sqrt_eigvals = np.sqrt(eigvals)
+
+        eigvecs *= 2
+
+        # Compute the angle of rotation from the eigenvectors
+        angle = np.degrees(np.arctan2(*eigvecs[:, 0][::-1]))
+
+        # Compute coordinates for the ellipse
+        t = np.linspace(0, 2 * np.pi, 100)
+        coord_array = np.array([sqrt_eigvals[0] * np.cos(t), sqrt_eigvals[1] * np.sin(t)])
+        coords = np.dot(eigvecs, coord_array).T + np.mean(X, axis=0)
+
+        return go.Scatter(x=coords[:, 0], y=coords[:, 1], mode='lines', name=f'Ellipse {cluster}')
+
+
+class OrthogonalProjection:
+    def __init__(self, normal_vector=np.array([0,0,1])):
+        self.normal_vector = normal_vector / np.linalg.norm(normal_vector)
+        self.mean = None
+        self.results = None
+
+    def fit(self, X):
+        self.mean = np.mean(X, axis=0)
+        X_centered = X - self.mean
+
+        # Project the centered points onto the 2D plane
+        self.results = self.orthogonal_project(X_centered)
+
+    def orthogonal_project(self, X):
+        distance_to_plane = np.dot(X, self.normal_vector)
+        return X - np.outer(distance_to_plane, self.normal_vector)
+
+    def transform(self, X):
+        X_centered = X - self.mean
+        return self.orthogonal_project(X_centered)
+
+    def distance_to_plane(self, X):
+        X_centered = X - self.mean
+        return np.abs(np.dot(X_centered, self.normal_vector))
+
+    def plot(self, data):
+        X_2D = self.transform(data) + self.mean  # Add the mean back to the projected points
+        Z = self.distance_to_plane(data)
+
+        # Create scatter plot of the projected 2D points
+        scatter = go.Scatter3d(x=X_2D[:, 0], y=X_2D[:, 1], z=X_2D[:, 2],
+                               mode='markers',
+                               marker=dict(size=4, color='red'),
+                               name='Projected Points')
+
+        # Create line segments connecting the original 3D points to the projected 2D points
+        lines = []
+        for p1, p2 in zip(data, X_2D):
+            lines.extend([go.Scatter3d(x=[p1[0], p2[0]], y=[p1[1], p2[1]], z=[p1[2], p2[2]],
+                                       mode='lines',
+                                       line=dict(color='white', dash='dash'),
+                                       showlegend=False)])
+
+        fig = go.Figure(data=[scatter, *lines])
+        return fig
+
+
+class PCA:
+    def __init__(self, n_components=2):
+        self.n_components = n_components
+        self.components = None
+        self.mean = None
+        self.results = None
+
+    def fit(self, X):
+        self.mean = np.mean(X, axis=0)
+        X_centered = X - self.mean
+        covariance_matrix = np.cov(X_centered.T)
+
+        eigenvalues, eigenvectors = np.linalg.eig(covariance_matrix)
+        eigenvectors = eigenvectors.T
+
+        # Sort the eigenvectors based on the descending order of their corresponding eigenvalues
+        sorted_components_idx = np.argsort(eigenvalues)[::-1]
+        self.components = eigenvectors[sorted_components_idx[:self.n_components]]
+
+    def transform(self, X):
+        X_centered = X - self.mean
+        return np.dot(X_centered, self.components.T)
+
+    def inverse_transform(self, X_transformed):
+        return np.dot(X_transformed, self.components) + self.mean
+
+    def plot(self, data):
+        X_transformed = self.transform(data)
+        X_projected = self.inverse_transform(X_transformed)
+
+        # Create scatter plot of the projected points
+        scatter = go.Scatter3d(x=X_projected[:, 0], y=X_projected[:, 1], z=X_projected[:, 2],
+                               mode='markers',
+                               marker=dict(size=4, color='red'),
+                               name='Projected Points')
+
+        # Create line segments connecting the original 3D points to the projected points
+        lines = []
+        for p1, p2 in zip(data, X_projected):
+            lines.extend([go.Scatter3d(x=[p1[0], p2[0]], y=[p1[1], p2[1]], z=[p1[2], p2[2]],
+                                       mode='lines',
+                                       line=dict(color='white', dash='dash'),
+                                       showlegend=False)])
+
+        fig = go.Figure(data=[scatter, *lines])
+        return fig

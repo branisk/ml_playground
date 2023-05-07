@@ -34,10 +34,10 @@ base_layout = html.Div(className="container", children=[
             dcc.Tab(label="Primary Data", className="tabs", children=[
                 dcc.Graph(id='main-graph', figure=px.scatter().update_layout(template="plotly_dark", margin=dict(l=50, r=30, t=30, b=50), xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=False, zeroline=False))),
             ]),
-            dcc.Tab(label="Residuals", className="tabs", children=[
+            dcc.Tab(label="Residuals", className="tabs hidden", children=[
                 dcc.Graph(id='residual-graph', figure=px.scatter().update_layout(template="plotly_dark")),
             ]),
-            dcc.Tab(label="Gaussian Likelihood", className="tabs", children=[
+            dcc.Tab(label="Gaussian Likelihood", className="tabs hidden", children=[
                 dcc.Graph(id='gaussian-likelihood-graph', figure=px.scatter().update_layout(template="plotly_dark")),
             ]),
         ]),

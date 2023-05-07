@@ -43,10 +43,10 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
                 elif dataset == "Regression":
                     fig, data = gather_regression()
                 elif dataset == "Clustering":
-                    fig, data = None, None
+                    fig, data = gather_clustering()
                 elif dataset == "Dimensionality Reduction":
                     fig, data = gather_dimensionalityreduction()
-                return fig.to_dict(), fig.to_dict(), data.values.tolist(), None, None, None, None
+                return fig.to_dict(), fig.to_dict(), pd.DataFrame(data).values.tolist(), None, None, None, None
             else: # The callback is for the algorithm, so intiialize the algorithm
                 if algorithm == "Support Vector Classifier":
                     model = SupportVectorClassifier()
@@ -54,6 +54,8 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
                     model = LogisticRegression()
                 elif algorithm == "Linear Regression":
                     model = LinearRegression()
+                elif algorithm == "KMeans":
+                    model = KMeans()
                 elif algorithm == "PCA":
                     model = PCA()
                 elif algorithm == "OrthogonalProjection":
@@ -106,11 +108,11 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
             elif dataset == "Classification":
                 fit_fig = model.plot_hyperplane(X)
                 fw = go.Figure(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
-
                 resfw = None
                 lhfw = None
-            elif dataset == "Clustering":
-                fw = None
+            if dataset == "Clustering": # Adding the clustering case
+                fit_fig = model.plot_centroids(X, Y)
+                fw = go.Figure(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
                 resfw = None
                 lhfw = None
             elif dataset == "Dimensionality Reduction":
@@ -140,7 +142,7 @@ def update_algorithms(value):
     elif value == "Regression":
         return ['Linear Regression'], {'display': 'block'}, {'display': 'inline-block'}
     elif value == "Clustering":
-        return ['KNearestNeighbors'], {'display': 'block'}, {'display': 'inline-block'}
+        return ['KMeans'], {'display': 'block'}, {'display': 'inline-block'}
     elif value == "Dimensionality Reduction":
         return ['OrthogonalProjection', 'PCA', 'SVD', 'LDA'], {'display': 'block'}, {'display': 'inline-block'}
 
@@ -161,7 +163,6 @@ def update_data(dataset, data, algorithm, model_data):
         model = None
 
     df = pd.DataFrame(data)
-    print(df)
 
     if dataset == "Classification":
         col1 = [row[0] for row in data]
@@ -180,7 +181,7 @@ def update_data(dataset, data, algorithm, model_data):
             for i, (x, y) in enumerate(zip(np.round(data[0], 2), np.round(data[1], 2)))
         ], None
     elif dataset == "Clustering":
-        return
+        return df.round({0: 2, 1: 2, 2: 3}).rename(columns={0: 'X', 1: 'Y', 2: 'Z'}).reset_index().to_dict('records'), None
     elif dataset == "Dimensionality Reduction":
         return df.round({0: 2, 1: 2, 2: 3}).rename(columns={0: 'X', 1: 'Y', 2: 'Z'}).reset_index().to_dict('records'), None
 
@@ -281,7 +282,7 @@ def update_results_layout(value, results, model_data):
         return columns, rows
 
     elif value == "Clustering":
-        return [None] * 5
+        return [None] * 2
 
     elif value == "Dimensionality Reduction" or "OrthogonalProjection":
         return [None] * 2

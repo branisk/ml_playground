@@ -12,8 +12,8 @@ def gather_regression():
     X = X[:, 0]
     minx = min(X)
     miny = min(Y)
-    X = X-minx
-    Y = Y-miny
+    X = (X-minx) * 100
+    Y = (Y-miny) * 100
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
     fig = go.FigureWidget()
@@ -107,15 +107,15 @@ def gather_classification():
 
 
 def gather_clustering():
-    X, Y = make_blobs(n_samples=50, centers=4, random_state=0, cluster_std=0.30)
-    Y = np.where(Y == 0, -1, Y)
+    X, Y = make_blobs(n_samples=200, centers=4, random_state=0, cluster_std=1)
 
-    fig = go.FigureWidget(px.scatter(x=X[:, 0], y=X[:, 1], color=Y))
+    fig = go.FigureWidget(go.Scatter(x=X[:, 0], y=X[:, 1], mode='markers',
+                                     marker=dict(color='grey', size=6)))
 
     fig.update_layout(
         title='Clustering Dataset',
-        xaxis=dict(title='X'),
-        yaxis=dict(title='Y'),
+        xaxis=dict(title='X_0 Independent Variable', showgrid=False, zeroline=False),
+        yaxis=dict(title='X_1 Independent Variable', showgrid=False, zeroline=False),
         template="plotly_dark"
     )
 
@@ -123,6 +123,7 @@ def gather_clustering():
 
     return fig, data
 
+    
 def gather_dimensionalityreduction():
     X, Y = make_regression(n_samples=50, n_features=3, effective_rank=.1, random_state=42)
     data = pd.DataFrame(X, columns=['X', 'Y', 'Z'])
@@ -130,27 +131,44 @@ def gather_dimensionalityreduction():
 
     fig = go.FigureWidget()
 
-    scatter1 = px.scatter_3d(
-        data,
-        x='X',
-        y='Y',
-        z='Z'
+    scatter1 = go.Scatter3d(
+        x=data['X'],
+        y=data['Y'],
+        z=data['Z'],
+        mode='markers',
+        marker=dict(
+            size=5,
+            color=data['Z'],
+            colorscale='Plasma',
+            opacity=0.8,
+            showscale=False  # Hide the color scale legend
+        ),
+        name='3D'
     )
-    scatter1.data[0]['showlegend'] = True
-    scatter1.data[0]['name'] = '3D'
 
-    fig.add_traces(scatter1.data)
+    fig.add_trace(scatter1)
 
     fig.update_layout(
         title='Dimensionality Reduction',
-        template="plotly_dark",
-        legend=dict(
-            yanchor="top",
-            y=0.99,
-            xanchor="left",
-            x=0.01,
-            font=dict(size=10),
+        scene=dict(
+            xaxis_title='X Axis',
+            yaxis_title='Y Axis',
+            zaxis_title='Z Axis',
+            bgcolor="rgba(0,0,0,0.1)",
+            xaxis=dict(
+                gridcolor='grey',
+                showbackground=True
+            ),
+            yaxis=dict(
+                gridcolor='grey',
+                showbackground=True
+            ),
+            zaxis=dict(
+                gridcolor='grey',
+                showbackground=True
+            )
         ),
+        template="plotly_dark",
         margin=dict(l=0, r=20, t=50, b=20)
     )
 

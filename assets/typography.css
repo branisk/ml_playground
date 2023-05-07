@@ -64,6 +64,10 @@ a {
     font-size: 9px;
 }
 
+.hidden {
+  display: none !important;
+}
+
 #classification_dropdown {
   display: none;
 }
