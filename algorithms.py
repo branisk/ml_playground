@@ -303,7 +303,7 @@ class SupportVectorClassifier:
 class KMeans:
     def __init__(self, n_clusters=5, max_iterations=1, random_state=None):
         self.n_clusters = n_clusters
-        self.max_iterations = max_iterations
+        self.max_iter = max_iterations
         self.random_state = random_state
         self.centroids = None
         self.results = None
@@ -328,7 +328,7 @@ class KMeans:
         else:
             prev_centroids = self.centroids
 
-        for _ in range(self.max_iterations):
+        for _ in range(self.max_iter):
             labels = self._assign_clusters(X)
             new_centroids = self._update_centroids(X, labels)
 
@@ -341,7 +341,7 @@ class KMeans:
 
         return self
 
-    def plot_centroids(self, X, Y):
+    def plot(self, X, Y):
         if self.centroids is not None:
             labels = self._assign_clusters(X)
 
@@ -349,21 +349,10 @@ class KMeans:
             scatter_list = []
             for cluster in range(self.n_clusters):
                 indices = np.where(labels == cluster)[0]
-                scatter_list.append(go.Scatter(
-                    x=X[indices, 0], y=X[indices, 1], mode='markers',
-                    name=f"Cluster {cluster}",
-                    marker=dict(size=6, color=px.colors.qualitative.Plotly[cluster])
-                ))
+                scatter_list.append(self.style_clusters(X[indices], cluster))
                 scatter_list.append(self.plot_ellipses(X[indices], cluster))
 
-            # Add the centroids to the scatter list
-            scatter1 = go.Scatter(x=self.centroids[:, 0], y=self.centroids[:, 1],
-                                  mode='markers',
-                                  name='Centroids',
-                                  marker=dict(color='rgba(255, 0, 0, 0.8)',
-                                              line=dict(color='rgba(255, 255, 255, 1)', width=2),
-                                              size=10))
-            scatter_list.append(scatter1)
+            scatter_list.append(self.plot_centroids())
 
             fig = go.Figure(data=scatter_list)
 
@@ -389,9 +378,24 @@ class KMeans:
     def predict(self, X):
         return self._assign_clusters(X)
 
-    def fit_predict(self, X, Y):
-        self.fit(X)
-        return self.predict(X)
+    def style_clusters(self, X, cluster):
+        return go.Scatter(
+            x=X[:, 0], y=X[:, 1], mode='markers',
+            name=f"Cluster {cluster}",
+            marker=dict(size=6, color=px.colors.qualitative.Plotly[cluster])
+        )
+
+    def plot_centroids(self):
+        return go.Scatter(
+            x=self.centroids[:, 0], y=self.centroids[:, 1],
+            mode='markers',
+            name='Centroids',
+            marker=dict(
+                color='rgba(255, 0, 0, 0.8)',
+                line=dict(color='rgba(255, 255, 255, 1)', width=2),
+                size=10
+            )
+        )
 
     def plot_ellipses(self, X, cluster):
         if len(X) < 2:

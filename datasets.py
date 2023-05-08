@@ -18,24 +18,34 @@ def gather_regression():
 
     fig = go.FigureWidget()
 
-    scatter1 = px.scatter(
+    scatter1 = go.Scatter(
         x=X_train,
-        y=Y_train
+        y=Y_train,
+        mode='markers',
+        marker=dict(
+            color=Y_train*X_train,
+            colorscale="deep",
+            line=dict(width=0)
+        ),
+        showlegend=True,
+        name='Train'
     )
-    scatter1.data[0]['showlegend'] = True
-    scatter1.data[0]['name'] = 'Train'
 
-    fig.add_traces(scatter1.data)
+    fig.add_trace(scatter1)
 
-    scatter2 = px.scatter(
+    scatter2 = go.Scatter(
         x=X_test,
         y=Y_test,
-        labels={'x': 'Test', 'y': 'Test'}
-    ).update_traces(dict(marker_line_width=1, marker_line_color="white"))
-    scatter2.data[0]['showlegend'] = True
-    scatter2.data[0]['name'] = 'Test'
+        mode='markers',
+        marker=dict(
+            color='black',
+            line=dict(width=1, color="white")
+        ),
+        showlegend=True,
+        name='Test'
+    )
 
-    fig.add_traces(scatter2.data)
+    fig.add_trace(scatter2)
 
     fig.update_layout(
         title='Regression Dataset (Linear)',
@@ -67,8 +77,8 @@ def gather_classification():
         y=X_train[:, 1],
         color= np.where(Y_train == 1, "-1 Train", "+1 Train").astype(str),
         color_discrete_map={
-            "-1 Train": "orange",
-            "+1 Train": "royalblue"
+            "-1 Train": px.colors.qualitative.T10[0],
+            "+1 Train": px.colors.qualitative.T10[6]
         }
     )
 
@@ -79,8 +89,8 @@ def gather_classification():
         y=X_test[:, 1],
         color=np.where(Y_test == 1, "+1 Test", "-1 Test").astype(str),
         color_discrete_map={
-            "+1 Test": "orange",
-            "-1 Test": "blue"
+            "+1 Test": px.colors.qualitative.T10[3],
+            "-1 Test": px.colors.qualitative.T10[7]
         }
     ).update_traces(dict(marker_line_width=1, marker_line_color="white"))
 
@@ -123,9 +133,9 @@ def gather_clustering():
 
     return fig, data
 
-    
+
 def gather_dimensionalityreduction():
-    X, Y = make_regression(n_samples=50, n_features=3, effective_rank=.1, random_state=42)
+    X, Y = make_regression(n_samples=100, n_features=3, effective_rank=1, random_state=42)
     data = pd.DataFrame(X, columns=['X', 'Y', 'Z'])
     data = data - data.min()
 

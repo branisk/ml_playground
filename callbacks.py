@@ -6,6 +6,7 @@ from algorithms import *
 from app import app
 from datasets import *
 from metrics import *
+from layouts import *
 
 import pickle
 import base64
@@ -25,7 +26,8 @@ def deserialize_model(model_data):
     Output('gaussian-likelihood-graph', 'figure'),
     Output('model-store', 'data'),
     Output('results-store', 'data'),
-    Input('button', 'n_clicks'),
+    Input('step_button', 'n_clicks'),
+    Input('step_input', 'value'),
     Input('dataset_dropdown', 'value'),
     Input('algorithm_dropdown', 'value'),
     State('fig-store', 'data'),
@@ -33,7 +35,7 @@ def deserialize_model(model_data):
     State('model-store', 'data'),
     prevent_initial_call=True
 )
-def update_results(button, dataset, algorithm, fig, data, model_data):
+def update_results(step_button, step_input, dataset, algorithm, fig, data, model_data):
     #  Cases based on which component triggered the callback
     match dash.callback_context.triggered_id:
         case 'dataset_dropdown' | 'algorithm_dropdown':
@@ -62,7 +64,7 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
                     model = OrthogonalProjection()
                 return fig, fig, data, {}, {}, serialize_model(model), None
 
-        case 'button':
+        case 'step_button':
             data = np.array(data)
             #  Regression is used for 2d datasets, where Classification has a 3rd column for 'label'
             if dataset != "Regression":
@@ -77,6 +79,8 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
 
             if model_data and dataset != "Dimensionality Reduction":
                 model = deserialize_model(model_data)
+
+                model.max_iter = int(step_input)
 
                 # Fit the model on the train set
                 model.fit(X_train, Y_train)
@@ -111,7 +115,7 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
                 resfw = None
                 lhfw = None
             if dataset == "Clustering": # Adding the clustering case
-                fit_fig = model.plot_centroids(X, Y)
+                fit_fig = model.plot(X, Y)
                 fw = go.Figure(data=fig['data'] + list(fit_fig['data']), layout=fig['layout'])
                 resfw = None
                 lhfw = None
@@ -126,25 +130,29 @@ def update_results(button, dataset, algorithm, fig, data, model_data):
 
             return fw, fig, data, resfw, lhfw, serialize_model(model), True
 
+        case 'step_input':
+            return [dash.no_update,] * 7
+
 @app.callback(
     Output('algorithm_dropdown', 'options'),
     Output('algorithm_dropdown', 'style'),
-    Output('button', 'style'),
+    Output('step', 'style'),
+    Output('reset_button', 'style'),
     Input('dataset_dropdown', 'value'),
     prevent_initial_call=True
 )
 def update_algorithms(value):
     #  When the desired dataset is chosen, we need to un-hide the relevant ML algorithms
     if value == "None":
-        return [''], {''}, {''}
+        return [''], {''}, {''}, {''}
     elif value == "Classification":
-        return ['Support Vector Classifier', 'Logistic Regression'], {'display': 'block'}, {'display': 'inline-block'}
+        return ['Support Vector Classifier', 'Logistic Regression'], {'display': 'block'}, {'display': 'inline-block'}, {'display': 'inline-block'}
     elif value == "Regression":
-        return ['Linear Regression'], {'display': 'block'}, {'display': 'inline-block'}
+        return ['Linear Regression'], {'display': 'block'}, {'display': 'inline-block'}, {'display': 'inline-block'}
     elif value == "Clustering":
-        return ['KMeans'], {'display': 'block'}, {'display': 'inline-block'}
+        return ['KMeans'], {'display': 'block'}, {'display': 'inline-block'}, {'display': 'inline-block'}
     elif value == "Dimensionality Reduction":
-        return ['OrthogonalProjection', 'PCA', 'SVD', 'LDA'], {'display': 'block'}, {'display': 'inline-block'}
+        return ['OrthogonalProjection', 'PCA', 'SVD', 'LDA'], {'display': 'block'}, {'display': 'inline-block'}, {'display': 'inline-block'}
 
 
 @app.callback(
@@ -245,7 +253,7 @@ def update_hyperparameters(optimizer, regularization_type, regularization_value,
             model.optimizer = optimizer
         case 'regularization_dropdown':
             model.regularization_type = regularization_type
-        case 'regularization_value':
+        case 'regularization_input':
             model.C = float(regularization_value)
         case 'regression_method_dropdown':
             model.method = method
@@ -265,18 +273,21 @@ def update_results_layout(value, results, model_data):
         model = None
 
     if not value or model is None or results is None:
-        return [None] * 2
+        columns = [{'id': 'metric', 'name': 'metric', 'editable': False},
+                   {'id': 'value', 'name': 'values', 'editable': False}]
+        rows = []
+        return columns, rows
 
     results = model.results
 
     if value == "Classification":
-        columns = [{'id': 'metric', 'name': '', 'editable': False},
+        columns = [{'id': 'metric', 'name': 'metric', 'editable': False},
                    {'id': 'value', 'name': 'values', 'editable': False}]
         rows = [{'metric': metric, 'value': result} for metric, result in zip(classification_metrics, results)]
         return columns, rows
 
     elif value == "Regression":
-        columns = [{'id': 'metric', 'name': '', 'editable': False},
+        columns = [{'id': 'metric', 'name': 'metric', 'editable': False},
                    {'id': 'value', 'name': 'values', 'editable': False}]
         rows = [{'metric': metric, 'value': result} for metric, result in zip(regression_metrics, results)]
         return columns, rows
@@ -309,3 +320,14 @@ def update_info_layout(algorithm):
         return [values for values in linear_regression.values()]
     elif algorithm == "PCA" or "OrthogonalProjection":
         return 'None', 'None', 'None', 'None', 'None', None
+
+
+@app.callback(
+    Output('reset_button', 'n_clicks'),
+    Input('reset_button', 'n_clicks'),
+    prevent_initial_call=True
+)
+def reset_layout(n_clicks):
+    print("RESETTING DASHBOARD")
+    app.layout = base_layout
+    return 0

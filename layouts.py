@@ -26,7 +26,15 @@ base_layout = html.Div(className="container", children=[
             className="input-group-append",
             id="regularization_group"
         ),
-        html.Button('Step', id='button', style={'display': 'none'})
+        html.Div(id="step", children=[
+            html.Button(id='step_button', className="inline", children="Step"),
+            dcc.Input(id='step_input', value=1, className="inline", style={"width":"5em", "text-align":"right"}),
+        ],
+        className="input-group-append",
+        style={'display':'none'}
+        ),
+        html.Br(),
+        html.Button('Reset', id='reset_button', style={'display':'none'})
     ]),
 
     html.Div(className="Graphs", children=[
@@ -117,13 +125,7 @@ base_layout = html.Div(className="container", children=[
             style_table={'width': '80%', 'max-width': '80%'},
             style_header={'backgroundColor': '#343a40', 'fontWeight': 'bold', 'color': 'white'},
             style_cell={'backgroundColor': '#343a40', 'color': 'white'},
+            data=[{'metric': '', 'values': ''}]
         )
-    ]),
-
-    html.Div(className="Logo text-center center", children=[
-        html.H4("Made by Branislav Kesic", className=""),
-        html.Br(),
-        dcc.Link(html.H5("Github"), href="https://www.github.com/branisk", target="_blank"),
-        dcc.Link(html.H5("Portfolio"), href="http://www.branisk.com", target="_blank"),
     ]),
 ])
