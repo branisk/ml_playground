@@ -76,7 +76,21 @@ a {
 }
 
 .hidden {
-  display: none !important;
+  display: none;
+}
+
+#data-tab {
+  width: 10rem;
+}
+
+#residuals-tab {
+  display: none;
+  width: 10rem;
+}
+
+#residual-distribution-tab {
+  display: none;
+  width: 10rem;
 }
 
 #classification_dropdown {
@@ -133,10 +147,6 @@ a {
 .tabs {
     padding-top: 0px !important;
     height: 20px;
-}
-
-.title-text {
-  margin-left: -50px;
 }
 
 .Title { grid-area: Title; font-weight: bold; white-space:nowrap;}

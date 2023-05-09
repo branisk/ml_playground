@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 
 base_layout = html.Div(className="container", children=[
     html.P(id='none'),  # Dummy component, used to update model
+    dcc.Location(id="url"),
     dcc.Store(id='fig-store'),
     dcc.Store(id='data-store'),
     dcc.Store(id='model-store'),
@@ -39,14 +40,14 @@ base_layout = html.Div(className="container", children=[
 
     html.Div(className="Graphs", children=[
         dcc.Tabs(id="graph-tabs", children=[
-            dcc.Tab(label="Primary Data", className="tabs", children=[
+            dcc.Tab(label="Primary Data", id="data-tab", className="tabs", children=[
                 dcc.Graph(id='main-graph', figure=px.scatter().update_layout(template="plotly_dark", margin=dict(l=50, r=30, t=30, b=50), xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=False, zeroline=False))),
             ]),
-            dcc.Tab(label="Residuals", className="tabs hidden", children=[
+            dcc.Tab(label="Residuals", id="residuals-tab", className="tabs hidden", children=[
                 dcc.Graph(id='residual-graph', figure=px.scatter().update_layout(template="plotly_dark")),
             ]),
-            dcc.Tab(label="Gaussian Likelihood", className="tabs hidden", children=[
-                dcc.Graph(id='gaussian-likelihood-graph', figure=px.scatter().update_layout(template="plotly_dark")),
+            dcc.Tab(label="Distribution", id="residual-distribution-tab", className="tabs hidden", children=[
+                dcc.Graph(id='residual-distribution-graph', figure=px.scatter().update_layout(template="plotly_dark")),
             ]),
         ]),
     ]),
@@ -102,7 +103,7 @@ base_layout = html.Div(className="container", children=[
             dcc.Tab(label="Train", className="tabs", children=[
                 dash_table.DataTable(
                     id="train_table",
-                    style_table={'height': '120px', 'overflowY': 'auto'},
+                    style_table={'height': '200px', 'overflowY': 'auto'},
                     style_header={'backgroundColor': '#343a40', 'fontWeight': 'bold', 'color': 'white'},
                     style_cell={'backgroundColor': '#343a40', 'color': 'white'},
                 ),

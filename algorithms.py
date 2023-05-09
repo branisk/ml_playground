@@ -84,7 +84,7 @@ class LinearRegression:
 
         return scatter
 
-    def plot_gaussian_likelihood(self, X, Y):
+    def plot_residual_distribution(self, X, Y):
         Y_pred = self.predict(X)
         residuals = Y.T[0] - Y_pred
 
@@ -98,7 +98,7 @@ class LinearRegression:
         # Calculate the Gaussian likelihood
         likelihood = (1 / (np.sqrt(2 * np.pi * sigma**2))) * np.exp(-(x_values - mu)**2 / (2 * sigma**2))
 
-        scatter = px.scatter(x=x_values, y=likelihood)
+        scatter = px.scatter(x=x_values, y=likelihood, title="Residual Distribution Plot")
 
         return scatter
 

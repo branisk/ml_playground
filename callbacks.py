@@ -23,7 +23,7 @@ def deserialize_model(model_data):
     Output('fig-store', 'data'),
     Output('data-store', 'data'),
     Output('residual-graph', 'figure'),
-    Output('gaussian-likelihood-graph', 'figure'),
+    Output('residual-distribution-graph', 'figure'),
     Output('model-store', 'data'),
     Output('results-store', 'data'),
     Input('step_button', 'n_clicks'),
@@ -101,10 +101,10 @@ def update_results(step_button, step_input, dataset, algorithm, fig, data, model
                     yaxis_title="Residual"
 
                 ))
-                lh = model.plot_gaussian_likelihood(X_test, Y_test)
+                lh = model.plot_residual_distribution(X_test, Y_test)
                 lhfw = go.Figure(data=lh['data'], layout=fig['layout'])
                 lhfw.layout.update(dict(
-                    title="Maximum Gaussian Likelihood <br><sup>The distribution of the residuals, assumed to be normal</sup>",
+                    title="Residual Distribution <br><sup>The distribution of the residuals, assumed to be normal</sup>",
                     xaxis_title="Residual Values",
                     yaxis_title="Likelihood"
 
@@ -153,6 +153,25 @@ def update_algorithms(value):
         return ['KMeans'], {'display': 'block'}, {'display': 'inline-block'}, {'display': 'inline-block'}
     elif value == "Dimensionality Reduction":
         return ['OrthogonalProjection', 'PCA', 'SVD', 'LDA'], {'display': 'block'}, {'display': 'inline-block'}, {'display': 'inline-block'}
+
+@app.callback(
+    Output('residuals-tab', 'style'),
+    Output('residual-distribution-tab', 'style'),
+    Input('dataset_dropdown', 'value'),
+    prevent_initial_call=True
+)
+def update_algorithms(value):
+    #  When the desired dataset is chosen, we need to un-hide the relevant ML algorithms
+    if value == "None":
+        return {}, {}
+    elif value == "Classification":
+        return {}, {}
+    elif value == "Regression":
+        return {'display': 'inline'}, {'display': 'inline'}
+    elif value == "Clustering":
+        return {}, {}
+    elif value == "Dimensionality Reduction":
+        return {}, {}
 
 
 @app.callback(
@@ -323,11 +342,10 @@ def update_info_layout(algorithm):
 
 
 @app.callback(
-    Output('reset_button', 'n_clicks'),
+    Output("url", "pathname"),
     Input('reset_button', 'n_clicks'),
     prevent_initial_call=True
 )
 def reset_layout(n_clicks):
     print("RESETTING DASHBOARD")
-    app.layout = base_layout
-    return 0
+    return "/, refresh=True"
