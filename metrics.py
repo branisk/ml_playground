@@ -101,6 +101,13 @@ def precision(Y_actual, Y_pred):
     return tp / (tp + fp)
 
 
+# Specificity, the number of negative proerly identified out of all negative cases
+def specificity(Y_actual, Y_pred):
+    tn = np.sum((Y_actual == -1) & (Y_pred == -1))
+    fp = np.sum((Y_actual == -1) & (Y_pred == 1))
+    return tn / (tn + fp)
+
+
 #  F1 Score, the harmonic mean of precision and recall
 def f1_score(Y_actual, Y_pred):
     p = precision(Y_actual, Y_pred)

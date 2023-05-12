@@ -30,12 +30,16 @@ def deserialize_model(model_data):
     Input('step_input', 'value'),
     Input('dataset_dropdown', 'value'),
     Input('algorithm_dropdown', 'value'),
+    Input('optimizer_dropdown', 'value'),
+    Input('regularization_dropdown', 'value'),
+    Input('regularization_input', 'value'),
+    Input('regression_method_dropdown', 'value'),
     State('fig-store', 'data'),
     State('data-store', 'data'),
     State('model-store', 'data'),
     prevent_initial_call=True
 )
-def update_results(step_button, step_input, dataset, algorithm, fig, data, model_data):
+def update_results(step_button, step_input, dataset, algorithm, optimizer, regularization_type, regularization_value, method, fig, data, model_data):
     #  Cases based on which component triggered the callback
     match dash.callback_context.triggered_id:
         case 'dataset_dropdown' | 'algorithm_dropdown':
@@ -63,6 +67,26 @@ def update_results(step_button, step_input, dataset, algorithm, fig, data, model
                 elif algorithm == "OrthogonalProjection":
                     model = OrthogonalProjection()
                 return fig, fig, data, {}, {}, serialize_model(model), None
+
+        case 'optimizer_dropdown':
+            model = deserialize_model(model_data)
+            model.optimizer = optimizer
+            return fig, fig, data, {}, {}, serialize_model(model), None
+        case 'regularization_dropdown':
+            model = deserialize_model(model_data)
+            model.regularization_type = regularization_type
+            return fig, fig, data, {}, {}, serialize_model(model), None
+        case 'regularization_input':
+            model = deserialize_model(model_data)
+            if regularization_value == '':
+                pass
+            else:
+                model.C = float(regularization_value)
+            return fig, fig, data, {}, {}, serialize_model(model), None
+        case 'regression_method_dropdown':
+            model = deserialize_model(model_data)
+            model.method = method
+            return fig, fig, data, {}, {}, serialize_model(model), None
 
         case 'step_button':
             data = np.array(data)
@@ -249,33 +273,6 @@ def update_layout(value, data, model_data):
 
     elif value == "PCA" or "OrthogonalProjection":
         return [], [], None, {}, {}, {}, {}, []
-
-
-@app.callback(
-    Output('none', 'style'),
-    Input('optimizer_dropdown', 'value'),
-    Input('regularization_dropdown', 'value'),
-    Input('regularization_input', 'value'),
-    Input('regression_method_dropdown', 'value'),
-    State('model-store', 'data'),
-    prevent_initial_call=True
-)
-def update_hyperparameters(optimizer, regularization_type, regularization_value, method, model_data):
-    if model_data:
-        model = deserialize_model(model_data)
-    else:
-        return
-
-    #  Cases based on which component triggered the callback
-    match dash.callback_context.triggered_id:
-        case 'optimizer_dropdown':
-            model.optimizer = optimizer
-        case 'regularization_dropdown':
-            model.regularization_type = regularization_type
-        case 'regularization_input':
-            model.C = float(regularization_value)
-        case 'regression_method_dropdown':
-            model.method = method
 
 @app.callback(
     Output('results-table', 'columns'),
